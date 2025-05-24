@@ -1,0 +1,54 @@
+/* Importa Tailwind y Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Roboto:wght@400;500&display=swap');
+@import "tailwindcss";
+
+
+/* Reset y base modernos */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: auto;
+}
+
+
+
+body {
+  background-color: #ffffff;
+  color: #22223b;
+  margin: 0;
+  padding: 0;
+  font-family: 'Roboto', 'Segoe UI', Arial, sans-serif;
+  min-height: 100vh;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* Oculta la barra de scroll en navegadores modernos */
+  scrollbar-width: auto; /* Firefox */
+  -ms-overflow-style: none;  /* IE y Edge */
+}
+body::-webkit-scrollbar {
+  display: none; /* Chrome, Safari y Opera */
+}
+
+/* Tipografía */
+h1 {
+  font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif;
+
+}
+
+h2, h3, h4, h5, h6 {
+  font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif;
+
+}
+
+.text-animate {
+  opacity: 0;
+}
+
+
