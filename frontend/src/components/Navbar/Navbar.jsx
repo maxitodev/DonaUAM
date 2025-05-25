@@ -20,9 +20,9 @@ const Navbar = () => {
         </button>
         {/* Logo */}
         <div className="flex-1 flex items-center justify-center md:justify-start md:col-span-3">
-          <span className="text-white font-bold text-2xl tracking-tight select-none mx-auto md:mx-0">
+          <Link to="/home" className="text-white font-bold text-2xl tracking-tight select-none mx-auto md:mx-0">
             DonaUAM
-          </span>
+          </Link>
         </div>
         {/* Barra de búsqueda en desktop, centrada */}
         <div className="hidden md:flex md:col-span-6 justify-center">
@@ -42,8 +42,9 @@ const Navbar = () => {
         {/* Opciones de navegación en desktop */}
         <div className="hidden md:flex md:col-span-3 items-center justify-end space-x-6">
           <Link to="/home" className="text-white hover:text-yellow-300 font-semibold transition duration-200">Inicio</Link>
-          <Link to="/donaciones" className="text-white hover:text-yellow-300 font-semibold transition duration-200">Donar</Link>
-          <Link to="/perfil" className="text-white hover:text-yellow-300 font-semibold transition duration-200">Mis Solicitudes</Link>
+          <Link to="/donar" className="text-white hover:text-yellow-300 font-semibold transition duration-200">Donar</Link>
+          <Link to="/mis-donaciones" className="text-white hover:text-yellow-300 font-semibold transition duration-200">Mis Donaciones</Link>
+          <Link to="/mis-solicitudes" className="text-white hover:text-yellow-300 font-semibold transition duration-200">Mis Solicitudes</Link>
           <Link to="/logout" className="bg-orange-400 hover:bg-orange-500 text-black font-bold py-1 px-4 rounded transition duration-200 shadow">
             Salir
           </Link>
@@ -89,14 +90,21 @@ const Navbar = () => {
               Inicio
             </Link>
             <Link
-              to="/donaciones"
+              to="/donar"
               className="text-white hover:text-yellow-300 font-semibold text-lg transition duration-200"
               onClick={() => setMenuOpen(false)}
             >
               Donar
             </Link>
             <Link
-              to="/perfil"
+              to="/mis-donaciones"
+              className="text-white hover:text-yellow-300 font-semibold text-lg transition duration-200"
+              onClick={() => setMenuOpen(false)}
+            >
+              Mis Donaciones
+            </Link>
+            <Link
+              to="/mis-solicitudes"
               className="text-white hover:text-yellow-300 font-semibold text-lg transition duration-200"
               onClick={() => setMenuOpen(false)}
             >

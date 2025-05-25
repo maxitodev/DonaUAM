@@ -5,6 +5,9 @@ const cors = require("cors");
 const path = require("path");
 const app = express();
 const authRoutes = require('./routes/auth/auth');
+const DonationRoutes = require('./routes/donation/donation');
+const RequestRoutes = require('./routes/request/request');
+
 
 // Leer orígenes permitidos desde variables de entorno y limpiar espacios
 const getAllowedOrigins = () => {
@@ -29,12 +32,13 @@ app.use(cors({
     }
   },
   credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"], 
   allowedHeaders: ["Content-Type", "Authorization"],
 }));
 
-// Middleware para parsear JSON
-app.use(express.json());
+// Middleware para parsear JSON (aumenta el límite de tamaño)
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 // Servir archivos estáticos desde la carpeta "public/uploads"
 app.use("/uploads", express.static(path.join(__dirname, "public", "uploads")));
@@ -62,6 +66,9 @@ app.get("/", (req, res) => {
   res.send("API funcionando");
 });
 app.use('/auth', authRoutes);
+app.use('/donations', DonationRoutes);
+app.use('/requests', RequestRoutes);
+
 
 // Manejar rutas no encontradas
 app.use((req, res, next) => {

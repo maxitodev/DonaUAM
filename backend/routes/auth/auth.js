@@ -2,8 +2,9 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
-const User = require('../../models/User');
+const User = require('../../models/user');
 const multer = require('multer');
+const authJwt = require('../../middlewares/jwt');
 
 const router = express.Router();
 
@@ -103,5 +104,16 @@ router.post(
     }
   }
 );
+
+// Obtener usuario autenticado
+router.get('/me', authJwt, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('-contrasena');
+    if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ message: 'Error en el servidor', error: err.message });
+  }
+});
 
 module.exports = router;
