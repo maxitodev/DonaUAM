@@ -20,6 +20,18 @@ router.post('/:donacionId', jwt, async (req, res) => {
     const donacion = await Donation.findById(donacionId);
     if (!donacion) return res.status(404).json({ message: 'Donación no encontrada' });
 
+    // Verificar que el usuario no haya enviado ya una solicitud para esta donación
+    const solicitudExistente = await Request.findOne({ 
+      donacion: donacionId, 
+      usuario: userId 
+    });
+    
+    if (solicitudExistente) {
+      return res.status(400).json({ 
+        message: 'Ya has enviado una solicitud para esta donación' 
+      });
+    }
+
     const nuevaSolicitud = new Request({
       nombre: user.nombre,
       correo: user.correo,
@@ -52,6 +64,72 @@ router.get('/usuario/:usuarioId', async (req, res) => {
     res.json(solicitudes);
   } catch (error) {
     res.status(500).json({ message: 'Error al obtener solicitudes', error });
+  }
+});
+
+// Actualizar estado de una solicitud (el donador o el usuario pueden hacerlo, pero solo una aprobada por donación)
+router.patch('/:requestId/estado', jwt, async (req, res) => {
+  try {
+    const { estado } = req.body;
+    const requestId = req.params.requestId;
+    const userId = req.user.id;
+
+    if (!['pendiente', 'aprobada', 'rechazada'].includes(estado)) {
+      return res.status(400).json({ message: 'Estado inválido' });
+    }
+
+    const solicitud = await Request.findById(requestId).populate('donacion');
+    if (!solicitud) {
+      return res.status(404).json({ message: 'Solicitud no encontrada' });
+    }
+
+    // Permitir solo al donador o al usuario dueño de la solicitud
+    const isDonador = solicitud.donacion.usuario.toString() === userId;
+    const isSolicitante = solicitud.usuario.toString() === userId;
+    if (!isDonador && !isSolicitante) {
+      return res.status(403).json({ message: 'No tienes permisos para modificar esta solicitud' });
+    }
+
+    // Si se intenta aprobar, verificar que no haya otra aprobada para la misma donación
+    if (estado === 'aprobada') {
+      const yaAprobada = await Request.findOne({
+        donacion: solicitud.donacion._id,
+        estado: 'aprobada'
+      });
+      if (yaAprobada && yaAprobada._id.toString() !== solicitud._id.toString()) {
+        return res.status(400).json({ message: 'Ya existe una solicitud aprobada para esta donación' });
+      }
+    }
+
+    solicitud.estado = estado;
+    await solicitud.save();
+
+    res.json({ message: 'Estado actualizado correctamente', solicitud });
+  } catch (error) {
+    res.status(500).json({ message: 'Error al actualizar estado', error });
+  }
+});
+
+// Eliminar una solicitud (solo el usuario que la creó puede eliminarla)
+router.delete('/:requestId', jwt, async (req, res) => {
+  try {
+    const requestId = req.params.requestId;
+    const userId = req.user.id;
+
+    const solicitud = await Request.findById(requestId);
+    if (!solicitud) {
+      return res.status(404).json({ message: 'Solicitud no encontrada' });
+    }
+
+    // Verificar que el usuario actual sea quien creó la solicitud
+    if (solicitud.usuario.toString() !== userId) {
+      return res.status(403).json({ message: 'No tienes permisos para eliminar esta solicitud' });
+    }
+
+    await Request.findByIdAndDelete(requestId);
+    res.json({ message: 'Solicitud eliminada correctamente' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error al eliminar solicitud', error });
   }
 });
 

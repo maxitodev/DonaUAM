@@ -190,7 +190,7 @@ const EditDonation = () => {
                 <div className="flex items-center space-x-4">
                   <label
                     htmlFor="imagen"
-                    className="px-6 py-3 bg-gradient-to-r from-pink-500 to-indigo-500 text-white rounded-xl shadow-md cursor-pointer hover:scale-105 transition-all font-semibold"
+                    className="px-6 py-3 bg-gradient-to-r from-pink-500 to-indigo-500 text-white rounded-xl shadow-md cursor-pointer hover:scale-110 hover:shadow-xl hover:from-pink-600 hover:to-indigo-600 active:scale-95 transition-all duration-300 font-semibold transform hover:-translate-y-1"
                   >
                     Seleccionar archivo
                     <input
@@ -216,7 +216,7 @@ const EditDonation = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-4 rounded-full bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-700 text-white font-bold text-xl shadow-xl hover:scale-105 active:scale-95 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-pink-300/50"
+                className="w-full py-4 rounded-full bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-700 text-white font-bold text-xl shadow-xl hover:scale-105 hover:shadow-2xl hover:from-pink-700 hover:via-purple-700 hover:to-indigo-800 active:scale-95 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-pink-300/50 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-xl transform hover:-translate-y-1"
               >
                 {loading ? "Guardando..." : "Guardar cambios"}
               </button>

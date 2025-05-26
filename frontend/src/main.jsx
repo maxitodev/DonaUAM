@@ -13,6 +13,8 @@ import MyDonations from './components/Donations/Mydonations.jsx'
 import EditDonation from './components/Donations/EditDonation.jsx'
 import DonationDetail from './components/Donations/DonationDetail.jsx'
 import RequestForm from './components/Requests/RequestForm.jsx'
+import MyRequests from './components/Requests/MyRequests.jsx'
+import DonationRequests from './components/Donations/DonationRequests.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -74,6 +76,22 @@ createRoot(document.getElementById('root')).render(
           element={
             <PrivateRoute>
               <RequestForm />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/mis-solicitudes"
+          element={
+            <PrivateRoute>
+              <MyRequests />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/solicitudes-donacion/:id"
+          element={
+            <PrivateRoute>
+              <DonationRequests />
             </PrivateRoute>
           }
         />

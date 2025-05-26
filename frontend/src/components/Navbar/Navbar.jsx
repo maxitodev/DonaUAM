@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
-const Navbar = () => {
+const Navbar = ({ searchTerm, onSearchChange, onClearSearch }) => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
@@ -20,7 +20,11 @@ const Navbar = () => {
         </button>
         {/* Logo */}
         <div className="flex-1 flex items-center justify-center md:justify-start md:col-span-3">
-          <Link to="/home" className="text-white font-bold text-2xl tracking-tight select-none mx-auto md:mx-0">
+          <Link
+            to="/home"
+            onClick={onClearSearch}
+            className="text-white font-bold text-2xl tracking-tight select-none mx-auto md:mx-0"
+          >
             DonaUAM
           </Link>
         </div>
@@ -31,6 +35,8 @@ const Navbar = () => {
               type="text"
               placeholder="Buscar..."
               className="w-full py-2 pl-4 pr-10 rounded-full shadow focus:outline-none focus:ring-2 focus:ring-yellow-300 transition bg-white bg-opacity-90 text-gray-800"
+              value={searchTerm}
+              onChange={onSearchChange}
             />
             <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -41,17 +47,17 @@ const Navbar = () => {
         </div>
         {/* Opciones de navegación en desktop */}
         <div className="hidden md:flex md:col-span-3 items-center justify-end space-x-6">
-          <Link to="/home" className="text-white hover:text-yellow-300 font-semibold transition duration-200">Inicio</Link>
-          <Link to="/donar" className="text-white hover:text-yellow-300 font-semibold transition duration-200">Donar</Link>
-          <Link to="/mis-donaciones" className="text-white hover:text-yellow-300 font-semibold transition duration-200">Mis Donaciones</Link>
-          <Link to="/mis-solicitudes" className="text-white hover:text-yellow-300 font-semibold transition duration-200">Mis Solicitudes</Link>
-          <Link to="/logout" className="bg-orange-400 hover:bg-orange-500 text-black font-bold py-1 px-4 rounded transition duration-200 shadow">
+          <Link to="/home" onClick={onClearSearch} className="text-white hover:text-yellow-300 font-semibold transition duration-200">Inicio</Link>
+          <Link to="/donar" onClick={onClearSearch} className="text-white hover:text-yellow-300 font-semibold transition duration-200">Donar</Link>
+          <Link to="/mis-donaciones" onClick={onClearSearch} className="text-white hover:text-yellow-300 font-semibold transition duration-200">Mis Donaciones</Link>
+          <Link to="/mis-solicitudes" onClick={onClearSearch} className="text-white hover:text-yellow-300 font-semibold transition duration-200">Mis Solicitudes</Link>
+          <Link to="/logout" onClick={onClearSearch} className="bg-orange-400 hover:bg-orange-500 text-black font-bold py-1 px-4 rounded transition duration-200 shadow">
             Salir
           </Link>
         </div>
         {/* Botón salir en móvil */}
         <div className="flex-shrink-0 ml-2 md:hidden">
-          <Link to="/logout" className="bg-orange-400 hover:bg-orange-500 text-black font-bold py-1 px-4 rounded transition duration-200 shadow">
+          <Link to="/logout" onClick={onClearSearch} className="bg-orange-400 hover:bg-orange-500 text-black font-bold py-1 px-4 rounded transition duration-200 shadow">
             Salir
           </Link>
         </div>
@@ -63,6 +69,8 @@ const Navbar = () => {
             type="text"
             placeholder="Buscar..."
             className="w-full py-2 pl-4 pr-10 rounded-full shadow focus:outline-none focus:ring-2 focus:ring-yellow-300 transition bg-white bg-opacity-90 text-gray-800"
+            value={searchTerm}
+            onChange={onSearchChange}
           />
           <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -84,29 +92,29 @@ const Navbar = () => {
           <div className="flex flex-col h-full py-8 px-6 space-y-6">
             <Link
               to="/home"
+              onClick={() => { setMenuOpen(false); onClearSearch && onClearSearch(); }}
               className="text-white hover:text-yellow-300 font-semibold text-lg transition duration-200"
-              onClick={() => setMenuOpen(false)}
             >
               Inicio
             </Link>
             <Link
               to="/donar"
+              onClick={() => { setMenuOpen(false); onClearSearch && onClearSearch(); }}
               className="text-white hover:text-yellow-300 font-semibold text-lg transition duration-200"
-              onClick={() => setMenuOpen(false)}
             >
               Donar
             </Link>
             <Link
               to="/mis-donaciones"
+              onClick={() => { setMenuOpen(false); onClearSearch && onClearSearch(); }}
               className="text-white hover:text-yellow-300 font-semibold text-lg transition duration-200"
-              onClick={() => setMenuOpen(false)}
             >
               Mis Donaciones
             </Link>
             <Link
               to="/mis-solicitudes"
+              onClick={() => { setMenuOpen(false); onClearSearch && onClearSearch(); }}
               className="text-white hover:text-yellow-300 font-semibold text-lg transition duration-200"
-              onClick={() => setMenuOpen(false)}
             >
               Mis Solicitudes
             </Link>

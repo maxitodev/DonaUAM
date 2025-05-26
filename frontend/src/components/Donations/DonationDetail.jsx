@@ -47,7 +47,7 @@ const DonationDetail = () => {
           <h2 className="text-3xl font-bold text-pink-700 mb-6">¡Ups! Donación no encontrada</h2>
           <p className="text-gray-600 mb-8">Parece que este artículo ya no está disponible o ha sido movido.</p>
           <button
-            className="px-8 py-3 bg-gradient-to-r from-pink-500 to-indigo-600 text-white rounded-full shadow-xl hover:scale-105 transition-transform font-semibold text-lg flex items-center justify-center gap-2 mx-auto"
+            className="px-8 py-3 bg-gradient-to-r from-pink-500 to-indigo-600 text-white rounded-full shadow-xl hover:scale-110 hover:shadow-2xl hover:from-pink-600 hover:to-indigo-700 active:scale-95 transition-all duration-300 font-semibold text-lg flex items-center justify-center gap-2 mx-auto cursor-pointer transform hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-pink-300/50"
             onClick={() => navigate("/")}
           >
             Volver al Inicio
@@ -90,7 +90,7 @@ const DonationDetail = () => {
                 {donation.nombre}
               </p>
               <button
-                className="mt-6 px-6 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg font-medium shadow-md hover:shadow-lg transition-all"
+                className="mt-6 px-6 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg font-medium shadow-md hover:shadow-xl hover:scale-110 hover:from-pink-600 hover:to-purple-700 active:scale-95 transition-all duration-300 cursor-pointer transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-pink-300"
                 onClick={() => setShowImageModal(false)}
               >
                 Cerrar
@@ -111,7 +111,7 @@ const DonationDetail = () => {
                     onClick={() => setShowImageModal(true)}
                   />
                   <button
-                    className="absolute bottom-4 right-4 px-4 py-2 bg-white/90 backdrop-blur-sm text-pink-600 rounded-lg shadow-lg hover:bg-white hover:shadow-xl transition-all flex items-center gap-2 cursor-pointer"
+                    className="absolute bottom-4 right-4 px-4 py-2 bg-white/90 backdrop-blur-sm text-pink-600 rounded-lg shadow-lg hover:bg-white hover:shadow-xl hover:scale-110 active:scale-95 transition-all duration-300 flex items-center gap-2 cursor-pointer transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-pink-300"
                     onClick={() => setShowImageModal(true)}
                   >
                     Ampliar imagen
@@ -156,13 +156,13 @@ const DonationDetail = () => {
               </div>
               <div className="flex flex-col gap-3 md:gap-4 mt-4 md:mt-8">
                 <button
-                  className="px-6 py-3 bg-gradient-to-r from-green-400 to-green-600 text-white rounded-lg font-medium shadow-md hover:shadow-lg hover:scale-[1.02] transition-all cursor-pointer"
+                  className="px-6 py-3 bg-gradient-to-r from-green-400 to-green-600 text-white rounded-lg font-medium shadow-md hover:shadow-xl hover:scale-[1.05] hover:from-green-500 hover:to-green-700 active:scale-95 transition-all duration-300 cursor-pointer transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-green-300"
                   onClick={() => navigate(`/solicitar/${donation._id}`)}
                 >
                   Solicitar
                 </button>
                 <button
-                  className="px-6 py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg font-medium shadow-md hover:shadow-lg hover:scale-[1.02] transition-all cursor-pointer"
+                  className="px-6 py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg font-medium shadow-md hover:shadow-xl hover:scale-[1.05] hover:from-pink-600 hover:to-purple-700 active:scale-95 transition-all duration-300 cursor-pointer transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-pink-300"
                   onClick={() => navigate("/")}
                 >
                   Volver al listado
