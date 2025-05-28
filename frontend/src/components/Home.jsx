@@ -224,11 +224,6 @@ const Home = () => {
         <footer className="bg-indigo-900 text-white py-12">
           <div className="max-w-7xl mx-auto px-4 text-center">
             <p className="text-lg md:text-xl mb-8">© 2025 DonaUAM. Todos los derechos reservados.</p>
-            <div className="flex justify-center space-x-6">
-              <a href="#" className="hover:text-pink-400 transition-colors">Contacto</a>
-              <a href="#" className="hover:text-pink-400 transition-colors">Aviso de privacidad</a>
-              <a href="#" className="hover:text-pink-400 transition-colors">Soporte</a>
-            </div>
           </div>
         </footer>
       )}

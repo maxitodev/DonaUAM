@@ -54,11 +54,9 @@ function App() {
   useEffect(() => {
     // Configuración base para animaciones
     const baseConfig = {
-      ease: 'power4.out',
-      scrub: 1.5,
-      start: 'top bottom', // inicia cuando el top del div entra por abajo
-      end: 'center center', // termina cuando el centro del div está en el centro de la pantalla
-      // toggleActions eliminado para evitar animaciones inversas
+      start: 'top bottom',
+      end: 'bottom top',
+      once: true, // Ejecuta la animación solo una vez
     }
 
     // Animación principal para textos
@@ -75,9 +73,7 @@ function App() {
           }
         )
       },
-      // onLeave y onEnterBack eliminados para evitar animaciones inversas
       ...baseConfig,
-      scrub: 15,
     })
 
     // Animaciones direccionales
@@ -102,9 +98,7 @@ function App() {
             }
           )
         },
-        // onLeave y onEnterBack eliminados
         ...baseConfig,
-        scrub: 15,
       })
     })
 
@@ -121,10 +115,7 @@ function App() {
           }
         )
       },
-      start: 'top bottom',
-      end: 'center center',
-      scrub: 15,
-      // onLeave y onEnterBack eliminados
+      ...baseConfig,
     })
 
     // Animación especial para títulos grandes
@@ -141,10 +132,7 @@ function App() {
           }
         )
       },
-      start: 'top bottom',
-      end: 'center center',
-      scrub: 2,
-      // onLeave y onEnterBack eliminados
+      ...baseConfig,
     })
 
     return () => ScrollTrigger.getAll().forEach(t => t.kill())
@@ -231,14 +219,6 @@ function App() {
         <div className="w-full min-h-[100dvh] flex justify-center items-center bg-gradient-to-b from-violet-950 animate-bg">
           <h1 className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-extrabold bg-gradient-to-r from-purple-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent text-center px-6 animate-title">
             Dona lo que ya no uses. ¡Apoya a tu comunidad universitaria!
-          </h1>
-        </div>
-
-        {/* Imagen con overlay */}
-        <div className="w-full min-h-[100dvh] flex justify-center items-center relative bg-[url('/uploads/uamcolab.webp')] bg-cover bg-center animate-bg">
-          <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-violet-800/70 to-black/90 pointer-events-none" />
-          <h1 className="relative text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-extrabold bg-amber-50 bg-clip-text text-transparent text-center px-6 animate-title">
-            Comparte, ayuda y haz la diferencia en tu institución educativa.
           </h1>
         </div>
 
