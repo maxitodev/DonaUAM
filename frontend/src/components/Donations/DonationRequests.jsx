@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../Navbar/Navbar";
+import Footer from "../Footer";
 
 const Spinner = () => (
   <div className="flex items-center justify-center h-40">
@@ -303,6 +304,7 @@ const DonationRequests = () => {
           </div>
         </div>
       </div>
+      <Footer />
     </>
   );
 };

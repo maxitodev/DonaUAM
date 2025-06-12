@@ -4,6 +4,7 @@ import Lenis from '@studio-freight/lenis'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import useRedirectIfAuthenticated from './hooks/useRedirectIfAuthenticated'
+import Footer from './components/Footer'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -288,6 +289,9 @@ function App() {
             `}
           </style>
         </div>
+        
+        {/* Footer */}
+        <Footer />
       </div>
     </>
   )

@@ -3,6 +3,7 @@ import Navbar from "./Navbar/Navbar";
 import { useNavigate } from "react-router-dom";
 import SkeletonCard from "./SkeletonCard";
 import axios from "axios";
+import Footer from "./Footer";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -221,11 +222,7 @@ const Home = () => {
 
       {/* Footer solo si no hay búsqueda */}
       {searchTerm.trim() === "" && (
-        <footer className="bg-indigo-900 text-white py-12">
-          <div className="max-w-7xl mx-auto px-4 text-center">
-            <p className="text-lg md:text-xl mb-8">© 2025 DonaUAM. Todos los derechos reservados.</p>
-          </div>
-        </footer>
+        <Footer />
       )}
     </>
   );

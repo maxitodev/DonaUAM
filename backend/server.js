@@ -7,6 +7,7 @@ const app = express();
 const authRoutes = require('./routes/auth/auth');
 const DonationRoutes = require('./routes/donation/donation');
 const RequestRoutes = require('./routes/request/request');
+const aiRoutes = require('./routes/ai/ai');
 
 
 // Leer orígenes permitidos desde variables de entorno y limpiar espacios
@@ -68,6 +69,7 @@ app.get("/", (req, res) => {
 app.use('/auth', authRoutes);
 app.use('/donations', DonationRoutes);
 app.use('/requests', RequestRoutes);
+app.use('/ai', aiRoutes);
 
 
 // Manejar rutas no encontradas

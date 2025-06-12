@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Navbar from "../Navbar/Navbar";
 import { useNavigate } from "react-router-dom";
+import Footer from "../Footer";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -237,6 +238,7 @@ const MyDonations = () => {
           </div>
         )}
       </section>
+      <Footer />
       <style>
         {`
         .animate-fade-in-down {
