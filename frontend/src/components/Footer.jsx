@@ -74,6 +74,11 @@ export default function Footer() {
                   Universidad Autónoma Metropolitana
                 </p>
               </div>
+              
+              <div className="mt-4">
+                <p className="font-semibold text-white">Idea original:</p>
+                <p>César Jovani Rodríguez De Jesús</p>
+              </div>
             </div>
           </div>
         </div>
