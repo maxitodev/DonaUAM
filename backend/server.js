@@ -10,28 +10,9 @@ const RequestRoutes = require('./routes/request/request');
 const aiRoutes = require('./routes/ai/ai');
 
 
-// Leer orígenes permitidos desde variables de entorno y limpiar espacios
-const getAllowedOrigins = () => {
-  const env = process.env.NODE_ENV === "production" ? "production" : "development";
-  const origins = env === "production"
-    ? process.env.ALLOWED_ORIGINS_PROD
-    : process.env.ALLOWED_ORIGINS_DEV;
-  return origins
-    ? origins.split(",").map(origin => origin.trim()).filter(Boolean)
-    : ["http://localhost:3000"];
-};
-const allowedOrigins = getAllowedOrigins();
-
-// Middleware CORS
+// Configuración CORS simplificada
 app.use(cors({
-  origin: function (origin, callback) {
-    // Permitir peticiones sin origen (como Postman) o si el origen está permitido
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("No permitido por CORS"));
-    }
-  },
+  origin: process.env.FRONTEND_URL,
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"], 
   allowedHeaders: ["Content-Type", "Authorization"],
@@ -41,19 +22,6 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
-// Servir archivos estáticos desde la carpeta "public/uploads"
-app.use("/uploads", express.static(path.join(__dirname, "public", "uploads")));
-
-// Servir frontend estático en producción
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "public")));
-  app.get("*", (req, res, next) => {
-    // Si la ruta empieza por /uploads, pasar al siguiente middleware
-    if (req.path.startsWith("/uploads")) return next();
-    res.sendFile(path.join(__dirname, "public", "index.html"));
-  });
-}
-
 // Conexión a MongoDB con opciones recomendadas
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("Conectado a MongoDB"))
@@ -62,20 +30,24 @@ mongoose.connect(process.env.MONGO_URI)
     process.exit(1);
   });
 
-//Rutas
+//Rutas de la API
 app.get("/", (req, res) => {
-  res.send("API funcionando");
+  res.send("Servidor funcionando");
 });
-app.use('/auth', authRoutes);
-app.use('/donations', DonationRoutes);
-app.use('/requests', RequestRoutes);
-app.use('/ai', aiRoutes);
 
-
-// Manejar rutas no encontradas
-app.use((req, res, next) => {
-  res.status(404).json({ message: "Ruta no encontrada" });
+app.get("/api", (req, res) => {
+  res.json({ message: "API funcionando correctamente" });
 });
+
+// Rutas de la API con prefijo /api
+app.use('/api/auth', authRoutes);
+app.use('/api/donations', DonationRoutes);
+app.use('/api/requests', RequestRoutes);
+app.use('/api/ai', aiRoutes);
+
+// Servir archivos estáticos
+app.use("/uploads", express.static(path.join(__dirname, "public", "uploads")));
+app.use(express.static(path.join(__dirname, "public")));
 
 // Manejo de errores global
 app.use((err, req, res, next) => {
