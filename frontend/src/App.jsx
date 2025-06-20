@@ -14,6 +14,9 @@ function App() {
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef(null)
 
+  // Detectar si es móvil
+  const isMobile = window.innerWidth <= 640
+
   // Redirige a /home si el usuario ya está autenticado
   useRedirectIfAuthenticated()
 
@@ -53,23 +56,28 @@ function App() {
   }, [])
 
   useEffect(() => {
-    // Configuración base para animaciones
+    // Configuración base para animaciones, ajustada para móvil
     const baseConfig = {
       start: 'top bottom',
       end: 'bottom top',
-      once: true, // Ejecuta la animación solo una vez
+      once: true,
     }
+    // Valores responsivos para animaciones
+    const animValues = isMobile
+      ? { y: 30, x: 30, duration: 0.7, stagger: 0.08 }
+      : { y: 60, x: 80, duration: 1.2, stagger: 0.15 }
 
     // Animación principal para textos
     ScrollTrigger.batch('.animate-text', {
       onEnter: batch => {
-        gsap.fromTo(batch, 
-          { opacity: 0, y: 60 }, 
-          { 
-            opacity: 1, 
+        gsap.fromTo(
+          batch,
+          { opacity: 0, y: animValues.y },
+          {
+            opacity: 1,
             y: 0,
-            duration: 1.2,
-            stagger: 0.15,
+            duration: animValues.duration,
+            stagger: animValues.stagger,
             ease: 'power3.out',
           }
         )
@@ -79,21 +87,22 @@ function App() {
 
     // Animaciones direccionales
     const directionalAnimations = [
-      { selector: '.animate-left', x: -80 },
-      { selector: '.animate-right', x: 80 },
-      { selector: '.animate-up', y: 80 },
+      { selector: '.animate-left', x: -animValues.x },
+      { selector: '.animate-right', x: animValues.x },
+      { selector: '.animate-up', y: animValues.y },
     ]
 
     directionalAnimations.forEach(({ selector, x = 0, y = 0 }) => {
       ScrollTrigger.batch(selector, {
         onEnter: batch => {
-          gsap.fromTo(batch, 
-            { opacity: 0, x, y }, 
-            { 
-              opacity: 1, 
-              x: 0, 
+          gsap.fromTo(
+            batch,
+            { opacity: 0, x, y },
+            {
+              opacity: 1,
+              x: 0,
               y: 0,
-              duration: 1,
+              duration: animValues.duration,
               stagger: 0.1,
               ease: 'power2.out',
             }
@@ -106,12 +115,13 @@ function App() {
     // Animación para fondos
     ScrollTrigger.batch('.animate-bg', {
       onEnter: batch => {
-        gsap.fromTo(batch, 
-          { opacity: 0, scale: 1.05 }, 
-          { 
-            opacity: 1, 
+        gsap.fromTo(
+          batch,
+          { opacity: 0, scale: isMobile ? 1.01 : 1.05 },
+          {
+            opacity: 1,
             scale: 1,
-            duration: 1.5,
+            duration: isMobile ? 0.9 : 1.5,
             ease: 'power2.out',
           }
         )
@@ -122,13 +132,14 @@ function App() {
     // Animación especial para títulos grandes
     ScrollTrigger.batch('.animate-title', {
       onEnter: batch => {
-        gsap.fromTo(batch, 
-          { opacity: 0, y: 40 }, 
-          { 
-            opacity: 1, 
+        gsap.fromTo(
+          batch,
+          { opacity: 0, y: isMobile ? 20 : 40 },
+          {
+            opacity: 1,
             y: 0,
-            duration: 1.5,
-            stagger: 0.05,
+            duration: isMobile ? 0.9 : 1.5,
+            stagger: isMobile ? 0.03 : 0.05,
             ease: 'elastic.out(1, 0.75)',
           }
         )
@@ -137,7 +148,7 @@ function App() {
     })
 
     return () => ScrollTrigger.getAll().forEach(t => t.kill())
-  }, [])
+  }, [isMobile])
 
   return (
     <>
@@ -210,7 +221,7 @@ function App() {
             className="absolute inset-0 w-full h-full object-cover"
           />
           <div className="absolute bottom-5 left-1/2 transform -translate-x-1/2 mt-10 animate-up">
-            <svg className="w-10 h-10 text-indigo-800 animate-bounce" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+            <svg className="w-8 h-8 sm:w-10 sm:h-10 text-indigo-800 animate-bounce" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
             </svg>
           </div>
@@ -218,29 +229,29 @@ function App() {
 
         {/* Mensaje inicial */}
         <div className="w-full min-h-[100dvh] flex justify-center items-center bg-gradient-to-b from-violet-950 animate-bg">
-          <h1 className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-extrabold bg-gradient-to-r from-purple-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent text-center px-6 animate-title">
+          <h1 className="text-3xl xs:text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-extrabold bg-gradient-to-r from-purple-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent text-center px-2 sm:px-6 animate-title">
             Dona lo que ya no uses. ¡Apoya a tu comunidad universitaria!
           </h1>
         </div>
 
         {/* Cómo funciona */}
-        <div className="w-full min-h-[100dvh] flex flex-col items-center bg-indigo-950 animate-bg">
-          <h1 className="mt-10 text-5xl sm:text-7xl md:text-9xl lg:text-[12rem] font-extrabold text-indigo-300 text-center animate-title">
+        <div className="w-full min-h-[60dvh] sm:min-h-[100dvh] flex flex-col items-center bg-indigo-950 animate-bg">
+          <h1 className="mt-8 sm:mt-10 text-3xl xs:text-5xl sm:text-7xl md:text-9xl lg:text-[12rem] font-extrabold text-indigo-300 text-center animate-title">
             ¿Cómo funciona?
           </h1>
-          <p className="mt-10 text-2xl sm:text-3xl lg:text-5xl font-extrabold text-white text-start max-w-5xl px-4 animate-text">
+          <p className="mt-6 sm:mt-10 text-lg xs:text-2xl sm:text-3xl lg:text-5xl font-extrabold text-white text-start max-w-5xl px-2 sm:px-4 animate-text">
             Al crear una cuenta podrás solicitar o donar algún producto, además si el producto te fue otorgado podrás ponerte en contacto con el usuario para coordinar la entrega.
           </p>
-          <div className="mt-16 w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-10 px-4">
+          <div className="mt-10 sm:mt-16 w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-10 px-2 sm:px-4">
             <div className="animate-left">
-              <h2 className="text-2xl lg:text-6xl font-bold text-indigo-200 mb-4">Beneficios para Donadores</h2>
-              <p className="text-base sm:text-lg lg:text-3xl font-semibold text-white tracking-wide leading-relaxed drop-shadow-sm mb-1">
+              <h2 className="text-lg xs:text-2xl lg:text-6xl font-bold text-indigo-200 mb-2 lg:mb-4">Beneficios para Donadores</h2>
+              <p className="text-sm xs:text-base sm:text-lg lg:text-3xl font-semibold text-white tracking-wide leading-relaxed drop-shadow-sm mb-1">
                 Dona artículos en buen estado y ayuda a otros miembros. Contribuye al aprovechamiento de recursos y fomenta la solidaridad.
               </p>
             </div>
             <div className="animate-right">
-              <h2 className="text-2xl lg:text-6xl font-bold text-indigo-200 mb-4">Beneficios para Solicitantes</h2>
-              <p className="text-base sm:text-lg lg:text-3xl font-semibold text-white tracking-wide leading-relaxed drop-shadow-sm mb-6">
+              <h2 className="text-lg xs:text-2xl lg:text-6xl font-bold text-indigo-200 mb-2 lg:mb-4">Beneficios para Solicitantes</h2>
+              <p className="text-sm xs:text-base sm:text-lg lg:text-3xl font-semibold text-white tracking-wide leading-relaxed drop-shadow-sm mb-6">
                 Solicita productos que necesites y recibe apoyo. Encuentra artículos útiles y da una segunda vida a los recursos.
               </p>
             </div>
@@ -248,26 +259,26 @@ function App() {
         </div>
 
         {/* Únete */}
-        <div className="w-full min-h-[100dvh] flex flex-col items-center bg-gradient-to-b from-violet-950 animate-bg px-2 py-8 sm:py-0">
-          <h1 className="mt-10 sm:mt-20 text-3xl xs:text-4xl sm:text-6xl md:text-8xl lg:text-[12rem] font-extrabold text-center px-2 sm:px-4 text-pink-400 animate-title leading-tight">
+        <div className="w-full min-h-[60dvh] sm:min-h-[100dvh] flex flex-col items-center bg-gradient-to-b from-violet-950 animate-bg px-2 py-8 sm:py-0">
+          <h1 className="mt-8 sm:mt-20 text-2xl xs:text-3xl sm:text-6xl md:text-8xl lg:text-[12rem] font-extrabold text-center px-2 sm:px-4 text-pink-400 animate-title leading-tight">
             ¡Únete a la comunidad!
           </h1>
-          <p className="mt-6 sm:mt-10 text-lg xs:text-xl sm:text-3xl lg:text-5xl font-extrabold text-white text-center max-w-2xl sm:max-w-5xl px-2 sm:px-4 animate-text">
+          <p className="mt-4 sm:mt-10 text-base xs:text-lg sm:text-3xl lg:text-5xl font-extrabold text-white text-center max-w-2xl sm:max-w-5xl px-2 sm:px-4 animate-text">
             Regístrate y comienza a donar o solicitar productos hoy mismo. Juntos podemos hacer la diferencia en nuestra comunidad.
           </p>
           <button
-            className="cursor-pointer w-full max-w-xs sm:max-w-fit px-6 py-4 sm:px-20 sm:py-10 text-lg sm:text-5xl mt-8 sm:mt-10 mb-4 sm:mb-0 rounded-full bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 text-white font-extrabold shadow-2xl transition-all duration-300 animate-up focus:outline-none focus:ring-4 focus:ring-pink-400/60 focus:ring-offset-2 focus:ring-offset-black
+            className="cursor-pointer w-full max-w-xs sm:max-w-fit px-6 py-4 sm:px-20 sm:py-10 text-base sm:text-5xl mt-6 sm:mt-10 mb-4 sm:mb-0 rounded-full bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 text-white font-extrabold shadow-2xl transition-all duration-300 animate-up focus:outline-none focus:ring-4 focus:ring-pink-400/60 focus:ring-offset-2 focus:ring-offset-black
               relative overflow-hidden group hover:scale-105 hover:shadow-pink-400/40 active:scale-95"
             onClick={() => navigate('/register')}
           >
             <span className="absolute left-[-75%] top-0 w-[250%] h-full bg-gradient-to-r from-white/30 via-white/10 to-transparent opacity-0 group-hover:opacity-100 group-hover:animate-modern-shine pointer-events-none rounded-full"></span>
             <span className="relative z-10">Registrarse</span>
           </button>
-          <p className="mt-6 sm:mt-10 text-lg xs:text-xl sm:text-3xl lg:text-5xl font-extrabold text-white text-center max-w-2xl sm:max-w-5xl px-2 sm:px-4 animate-text">
+          <p className="mt-4 sm:mt-10 text-base xs:text-lg sm:text-3xl lg:text-5xl font-extrabold text-white text-center max-w-2xl sm:max-w-5xl px-2 sm:px-4 animate-text">
             O si ya tienes cuenta, inicia sesión para acceder a todas las funciones.
           </p>
           <button
-            className="cursor-pointer w-full max-w-xs sm:max-w-fit px-6 py-4 sm:px-20 sm:py-10 text-lg sm:text-5xl mt-8 sm:mt-10 mb-12 rounded-full bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 text-white font-extrabold shadow-2xl transition-all duration-300 animate-up focus:outline-none focus:ring-4 focus:ring-indigo-400/60 focus:ring-offset-2 focus:ring-offset-black
+            className="cursor-pointer w-full max-w-xs sm:max-w-fit px-6 py-4 sm:px-20 sm:py-10 text-base sm:text-5xl mt-6 sm:mt-10 mb-12 rounded-full bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 text-white font-extrabold shadow-2xl transition-all duration-300 animate-up focus:outline-none focus:ring-4 focus:ring-indigo-400/60 focus:ring-offset-2 focus:ring-offset-black
               relative overflow-hidden group hover:scale-105 hover:shadow-indigo-400/40 active:scale-95"
             onClick={() => navigate('/login')}
           >
