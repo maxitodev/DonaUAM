@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import Lenis from '@studio-freight/lenis'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import useRedirectIfAuthenticated from './hooks/useRedirectIfAuthenticated'
@@ -10,7 +9,6 @@ gsap.registerPlugin(ScrollTrigger)
 
 function App() {
   const navigate = useNavigate()
-  const lenisRef = useRef(null)
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef(null)
 
@@ -19,41 +17,6 @@ function App() {
 
   // Redirige a /home si el usuario ya está autenticado
   useRedirectIfAuthenticated()
-
-  useEffect(() => {
-    const lenis = new Lenis({
-      duration: 5, 
-      easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smooth: true,
-    })
-    lenisRef.current = lenis
-
-    const raf = (time) => {
-      lenis.raf(time)
-      ScrollTrigger.update()
-      requestAnimationFrame(raf)
-    }
-    requestAnimationFrame(raf)
-
-    // Usa scrollerProxy solo si usas un contenedor personalizado.
-    // Si quieres scroll global, comenta o elimina esto:
-    // ScrollTrigger.scrollerProxy(scrollRef.current, { ... })
-
-    lenis.on('scroll', ScrollTrigger.update)
-    // Fix: Use lenis.raf instead of lenis.update in refresh event
-    const handleRefresh = () => {
-      if (lenisRef.current) {
-        lenisRef.current.raf(performance.now())
-      }
-    }
-    ScrollTrigger.addEventListener('refresh', handleRefresh)
-
-    return () => {
-      lenis.destroy()
-      ScrollTrigger.removeEventListener('refresh', handleRefresh)
-      // Si usaste scrollerProxy, límpialo aquí
-    }
-  }, [])
 
   useEffect(() => {
     // Configuración base para animaciones, ajustada para móvil
