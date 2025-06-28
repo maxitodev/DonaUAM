@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { scrollToTop } from "../../../utils/scrollUtils";
+import { scrollToTop } from "../../utils/scrollUtils";
 
 const Navbar = ({ searchTerm, onSearchChange, onClearSearch }) => {
   const [menuOpen, setMenuOpen] = useState(false);
