@@ -7,119 +7,205 @@ const Navbar = ({ searchTerm, onSearchChange, onClearSearch }) => {
   return (
     <nav className="bg-gradient-to-r from-indigo-500 via-purple-500 to-blue-700 shadow-lg">
       {/* Navbar principal */}
-      <div className="max-w-1xl mx-auto px-4 py-3 flex items-center justify-between md:grid md:grid-cols-12 md:gap-4">
-        {/* Menú hamburguesa solo en móvil */}
-        <button
-          className="md:hidden flex items-center text-white focus:outline-none"
-          onClick={() => setMenuOpen(!menuOpen)}
-          aria-label="Abrir menú"
-        >
-          <svg className="w-8 h-8" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d={menuOpen ? "M6 18L18 6M6 6l12 12" : "M4 8h16M4 16h16"} />
-          </svg>
-        </button>
-        {/* Logo */}
-        <div className="flex-1 flex items-center justify-center md:justify-start md:col-span-3">
-          <Link
-            to="/home"
-            onClick={onClearSearch}
-            className="text-white font-bold text-2xl tracking-tight select-none mx-auto md:mx-0"
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 py-3">
+        <div className="flex items-center justify-between">
+          {/* Menú hamburguesa - aparece en pantallas pequeñas y medianas */}
+          <button
+            className="xl:hidden flex items-center text-white focus:outline-none hover:text-yellow-300 transition-colors duration-200"
+            onClick={() => setMenuOpen(!menuOpen)}
+            aria-label="Abrir menú"
           >
-            DonaUAM
-          </Link>
+            <svg className="w-7 h-7 sm:w-8 sm:h-8" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d={menuOpen ? "M6 18L18 6M6 6l12 12" : "M4 8h16M4 16h16"} />
+            </svg>
+          </button>
+
+          {/* Logo - centrado en móvil, izquierda en desktop */}
+          <div className="flex-1 xl:flex-none flex items-center justify-center xl:justify-start">
+            <Link
+              to="/home"
+              onClick={onClearSearch}
+              className="text-white font-bold text-xl sm:text-2xl tracking-tight select-none hover:text-yellow-300 transition-colors duration-200"
+            >
+              DonaUAM
+            </Link>
+          </div>
+
+          {/* Barra de búsqueda - solo en pantallas muy grandes */}
+          <div className="hidden xl:flex flex-1 justify-center max-w-lg mx-8">
+            <div className="relative w-full">
+              <input
+                type="text"
+                placeholder="Buscar donaciones, categorías..."
+                className="w-full py-2.5 pl-4 pr-12 rounded-full shadow-lg focus:outline-none focus:ring-2 focus:ring-yellow-300 transition-all duration-200 bg-white/95 backdrop-blur-sm text-gray-800 placeholder-gray-500"
+                value={searchTerm}
+                onChange={onSearchChange}
+              />
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          {/* Navegación completa - solo en pantallas muy grandes */}
+          <div className="hidden xl:flex items-center space-x-6">
+            <Link to="/home" onClick={onClearSearch} className="text-white hover:text-yellow-300 font-medium transition-colors duration-200 whitespace-nowrap">
+              Inicio
+            </Link>
+            <Link to="/donar" onClick={onClearSearch} className="text-white hover:text-yellow-300 font-medium transition-colors duration-200 whitespace-nowrap">
+              Donar
+            </Link>
+            <Link to="/mis-donaciones" onClick={onClearSearch} className="text-white hover:text-yellow-300 font-medium transition-colors duration-200 whitespace-nowrap">
+              Mis Donaciones
+            </Link>
+            <Link to="/mis-solicitudes" onClick={onClearSearch} className="text-white hover:text-yellow-300 font-medium transition-colors duration-200 whitespace-nowrap">
+              Mis Solicitudes
+            </Link>
+            <Link 
+              to="/logout" 
+              onClick={onClearSearch} 
+              className="bg-orange-400 hover:bg-orange-500 text-black font-semibold py-2 px-4 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 whitespace-nowrap"
+            >
+              Salir
+            </Link>
+          </div>
+
+          {/* Botón salir compacto para pantallas medianas */}
+          <div className="hidden lg:flex xl:hidden">
+            <Link 
+              to="/logout" 
+              onClick={onClearSearch} 
+              className="bg-orange-400 hover:bg-orange-500 text-black font-semibold py-2 px-3 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+            >
+              Salir
+            </Link>
+          </div>
+
+          {/* Botón salir para móvil */}
+          <div className="flex lg:hidden">
+            <Link 
+              to="/logout" 
+              onClick={onClearSearch} 
+              className="bg-orange-400 hover:bg-orange-500 text-black font-semibold py-1.5 px-3 rounded-lg transition-all duration-200 shadow-lg text-sm"
+            >
+              Salir
+            </Link>
+          </div>
         </div>
-        {/* Barra de búsqueda en desktop, centrada */}
-        <div className="hidden md:flex md:col-span-6 justify-center">
-          <div className="relative w-full max-w-md">
+
+        {/* Barra de búsqueda para pantallas medianas y pequeñas */}
+        <div className="xl:hidden mt-3 px-1">
+          <div className="relative w-full max-w-md mx-auto">
             <input
               type="text"
-              placeholder="Buscar..."
-              className="w-full py-2 pl-4 pr-10 rounded-full shadow focus:outline-none focus:ring-2 focus:ring-yellow-300 transition bg-white bg-opacity-90 text-gray-800"
+              placeholder="Buscar donaciones..."
+              className="w-full py-2.5 pl-4 pr-12 rounded-full shadow-lg focus:outline-none focus:ring-2 focus:ring-yellow-300 transition-all duration-200 bg-white/95 backdrop-blur-sm text-gray-800 placeholder-gray-500"
               value={searchTerm}
               onChange={onSearchChange}
             />
-            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">
+            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z" />
               </svg>
-            </span>
+            </div>
           </div>
         </div>
-        {/* Opciones de navegación en desktop */}
-        <div className="hidden md:flex md:col-span-3 items-center justify-end space-x-6">
-          <Link to="/home" onClick={onClearSearch} className="text-white hover:text-yellow-300 font-semibold transition duration-200">Inicio</Link>
-          <Link to="/donar" onClick={onClearSearch} className="text-white hover:text-yellow-300 font-semibold transition duration-200">Donar</Link>
-          <Link to="/mis-donaciones" onClick={onClearSearch} className="text-white hover:text-yellow-300 font-semibold transition duration-200">Mis Donaciones</Link>
-          <Link to="/mis-solicitudes" onClick={onClearSearch} className="text-white hover:text-yellow-300 font-semibold transition duration-200">Mis Solicitudes</Link>
-          <Link to="/logout" onClick={onClearSearch} className="bg-orange-400 hover:bg-orange-500 text-black font-bold py-1 px-4 rounded transition duration-200 shadow">
-            Salir
-          </Link>
-        </div>
-        {/* Botón salir en móvil */}
-        <div className="flex-shrink-0 ml-2 md:hidden">
-          <Link to="/logout" onClick={onClearSearch} className="bg-orange-400 hover:bg-orange-500 text-black font-bold py-1 px-4 rounded transition duration-200 shadow">
-            Salir
-          </Link>
-        </div>
       </div>
-      {/* Barra de búsqueda en móvil */}
-      <div className="md:hidden px-4 pb-2">
-        <div className="relative w-full max-w-md mx-auto">
-          <input
-            type="text"
-            placeholder="Buscar..."
-            className="w-full py-2 pl-4 pr-10 rounded-full shadow focus:outline-none focus:ring-2 focus:ring-yellow-300 transition bg-white bg-opacity-90 text-gray-800"
-            value={searchTerm}
-            onChange={onSearchChange}
-          />
-          <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z" />
-            </svg>
-          </span>
-        </div>
-      </div>
-      {/* Panel lateral del menú hamburguesa */}
+
+      {/* Panel lateral del menú hamburguesa - mejorado para mejor responsividad */}
       <div
-        className={`fixed inset-0 z-40 transition-all duration-300 ${menuOpen ? "visible bg-black bg-opacity-40" : "invisible bg-transparent"} md:hidden`}
+        className={`fixed inset-0 z-50 transition-all duration-300 ${menuOpen ? "visible bg-black bg-opacity-50" : "invisible bg-transparent"} xl:hidden`}
         onClick={() => setMenuOpen(false)}
         style={{ pointerEvents: menuOpen ? "auto" : "none" }}
       >
         <div
-          className={`absolute top-0 left-0 h-full w-64 bg-gradient-to-b from-indigo-600 via-purple-600 to-blue-700 shadow-xl transform transition-transform duration-300 ${menuOpen ? "translate-x-0" : "-translate-x-full"}`}
+          className={`absolute top-0 left-0 h-full w-72 sm:w-80 bg-gradient-to-b from-indigo-600 via-purple-600 to-blue-700 shadow-2xl transform transition-all duration-300 ease-out ${menuOpen ? "translate-x-0" : "-translate-x-full"}`}
           onClick={e => e.stopPropagation()}
         >
-          <div className="flex flex-col h-full py-8 px-6 space-y-6">
+          {/* Header del menú lateral */}
+          <div className="flex items-center justify-between p-6 border-b border-white/20">
+            <h2 className="text-white font-bold text-xl">DonaUAM</h2>
+            <button
+              onClick={() => setMenuOpen(false)}
+              className="text-white hover:text-yellow-300 transition-colors duration-200"
+              aria-label="Cerrar menú"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Navegación del menú lateral */}
+          <div className="flex flex-col h-full py-6 px-6 space-y-4">
             <Link
               to="/home"
               onClick={() => { setMenuOpen(false); onClearSearch && onClearSearch(); }}
-              className="text-white hover:text-yellow-300 font-semibold text-lg transition duration-200"
+              className="flex items-center space-x-3 text-white hover:text-yellow-300 hover:bg-white/10 font-medium text-lg transition-all duration-200 p-3 rounded-lg group"
             >
-              Inicio
+              <svg className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+              </svg>
+              <span>Inicio</span>
             </Link>
+            
             <Link
               to="/donar"
               onClick={() => { setMenuOpen(false); onClearSearch && onClearSearch(); }}
-              className="text-white hover:text-yellow-300 font-semibold text-lg transition duration-200"
+              className="flex items-center space-x-3 text-white hover:text-yellow-300 hover:bg-white/10 font-medium text-lg transition-all duration-200 p-3 rounded-lg group"
             >
-              Donar
+              <svg className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+              <span>Donar</span>
             </Link>
+            
             <Link
               to="/mis-donaciones"
               onClick={() => { setMenuOpen(false); onClearSearch && onClearSearch(); }}
-              className="text-white hover:text-yellow-300 font-semibold text-lg transition duration-200"
+              className="flex items-center space-x-3 text-white hover:text-yellow-300 hover:bg-white/10 font-medium text-lg transition-all duration-200 p-3 rounded-lg group"
             >
-              Mis Donaciones
+              <svg className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+              </svg>
+              <span>Mis Donaciones</span>
             </Link>
+            
             <Link
               to="/mis-solicitudes"
               onClick={() => { setMenuOpen(false); onClearSearch && onClearSearch(); }}
-              className="text-white hover:text-yellow-300 font-semibold text-lg transition duration-200"
+              className="flex items-center space-x-3 text-white hover:text-yellow-300 hover:bg-white/10 font-medium text-lg transition-all duration-200 p-3 rounded-lg group"
             >
-              Mis Solicitudes
+              <svg className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <span>Mis Solicitudes</span>
             </Link>
-            <div className="flex-1" />
-            <div className="text-xs text-gray-300 text-center">© {new Date().getFullYear()} DonaUAM</div>
+
+            {/* Separador */}
+            <div className="border-t border-white/20 my-4"></div>
+
+            {/* Botón de salir prominente en el menú lateral */}
+            <Link
+              to="/logout"
+              onClick={() => { setMenuOpen(false); onClearSearch && onClearSearch(); }}
+              className="flex items-center justify-center space-x-3 bg-orange-400 hover:bg-orange-500 text-black font-semibold text-lg transition-all duration-200 p-4 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 mt-6"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+              <span>Cerrar Sesión</span>
+            </Link>
+
+            {/* Footer del menú lateral */}
+            <div className="flex-1"></div>
+            <div className="text-xs text-gray-300 text-center mt-8 pt-4 border-t border-white/20">
+              © {new Date().getFullYear()} DonaUAM
+              <br />
+              <span className="text-gray-400">Universidad Autónoma Metropolitana</span>
+            </div>
           </div>
         </div>
       </div>
