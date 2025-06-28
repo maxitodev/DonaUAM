@@ -2,6 +2,10 @@ const express = require('express');
 const router = express.Router();
 const Donation = require('../../models/donation');
 
+// Increase payload limit for this router
+router.use(express.json({ limit: '50mb' }));
+router.use(express.urlencoded({ limit: '50mb', extended: true }));
+
 // Obtener todas las donaciones (solo Activo)
 router.get('/', async (req, res) => {
   try {
@@ -26,15 +30,24 @@ router.post('/', async (req, res) => {
         });
       }
       
-      // Validar el tamaño de cada imagen
+      // Validar el tamaño de cada imagen con límite más estricto
       for (let i = 0; i < imagen.length; i++) {
         const base64Size = Buffer.byteLength(imagen[i], 'utf8');
-        const maxSize = 5 * 1024 * 1024; // 5MB en bytes
+        const maxSize = 3 * 1024 * 1024; // Reducir a 3MB por imagen
         if (base64Size > maxSize) {
-          return res.status(400).json({ 
-            error: `La imagen ${i + 1} es demasiado grande. El tamaño máximo permitido es 5MB.` 
+          return res.status(413).json({ 
+            error: `La imagen ${i + 1} es demasiado grande. El tamaño máximo permitido es 3MB por imagen.` 
           });
         }
+      }
+      
+      // Validar tamaño total de todas las imágenes
+      const totalSize = imagen.reduce((total, img) => total + Buffer.byteLength(img, 'utf8'), 0);
+      const maxTotalSize = 8 * 1024 * 1024; // 8MB total
+      if (totalSize > maxTotalSize) {
+        return res.status(413).json({ 
+          error: 'El tamaño total de las imágenes excede el límite permitido de 8MB.' 
+        });
       }
     }
     
@@ -49,6 +62,9 @@ router.post('/', async (req, res) => {
     await donation.save();
     res.status(201).json(donation);
   } catch (err) {
+    if (err.type === 'entity.too.large') {
+      return res.status(413).json({ error: 'Las imágenes son demasiado grandes. Reduce el tamaño o la cantidad de imágenes.' });
+    }
     res.status(400).json({ error: 'Error al crear la donación' });
   }
 });
@@ -135,15 +151,24 @@ router.put('/:id', async (req, res) => {
         });
       }
       
-      // Validar el tamaño de cada imagen
+      // Validar el tamaño de cada imagen con límite más estricto
       for (let i = 0; i < imagen.length; i++) {
         const base64Size = Buffer.byteLength(imagen[i], 'utf8');
-        const maxSize = 5 * 1024 * 1024; // 5MB en bytes
+        const maxSize = 3 * 1024 * 1024; // Reducir a 3MB por imagen
         if (base64Size > maxSize) {
-          return res.status(400).json({ 
-            error: `La imagen ${i + 1} es demasiado grande. El tamaño máximo permitido es 5MB.` 
+          return res.status(413).json({ 
+            error: `La imagen ${i + 1} es demasiado grande. El tamaño máximo permitido es 3MB por imagen.` 
           });
         }
+      }
+      
+      // Validar tamaño total de todas las imágenes
+      const totalSize = imagen.reduce((total, img) => total + Buffer.byteLength(img, 'utf8'), 0);
+      const maxTotalSize = 8 * 1024 * 1024; // 8MB total
+      if (totalSize > maxTotalSize) {
+        return res.status(413).json({ 
+          error: 'El tamaño total de las imágenes excede el límite permitido de 8MB.' 
+        });
       }
     }
     
@@ -157,6 +182,9 @@ router.put('/:id', async (req, res) => {
     }
     res.json(updated);
   } catch (err) {
+    if (err.type === 'entity.too.large') {
+      return res.status(413).json({ error: 'Las imágenes son demasiado grandes. Reduce el tamaño o la cantidad de imágenes.' });
+    }
     res.status(400).json({ error: 'Error al actualizar la donación' });
   }
 });

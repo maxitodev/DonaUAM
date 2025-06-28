@@ -79,14 +79,25 @@ const EditDonation = () => {
     
     try {
       for (const file of files) {
+        // Configuración más agresiva de compresión
         const compressedFile = await imageCompression(file, {
-          maxSizeMB: 1,
-          maxWidthOrHeight: 1024,
-          useWebWorker: true
+          maxSizeMB: 0.8, // Reducir a 0.8MB por imagen
+          maxWidthOrHeight: 800, // Reducir resolución
+          useWebWorker: true,
+          quality: 0.7 // Reducir calidad para menor tamaño
         });
         
         const reader = new FileReader();
         reader.onloadend = () => {
+          const base64Size = reader.result.length;
+          const maxSize = 2 * 1024 * 1024; // 2MB máximo por imagen en base64
+          
+          if (base64Size > maxSize) {
+            setMensaje("Una imagen es demasiado grande incluso después de la compresión. Intenta con una imagen más pequeña.");
+            setCompressing(false);
+            return;
+          }
+          
           setForm((prev) => ({ ...prev, imagen: [...prev.imagen, reader.result] }));
         };
         reader.readAsDataURL(compressedFile);
@@ -94,7 +105,7 @@ const EditDonation = () => {
       setCompressing(false);
     } catch (error) {
       console.error('Error al comprimir la imagen:', error);
-      setMensaje("Error al comprimir la imagen. Intenta nuevamente.");
+      setMensaje("Error al comprimir la imagen. Intenta con una imagen más pequeña.");
       setCompressing(false);
     }
   };
@@ -130,13 +141,26 @@ const EditDonation = () => {
       setMensaje("La descripción no debe exceder los 200 caracteres.");
       return;
     }
+    
+    // Validar tamaño total antes de enviar
+    const totalSize = form.imagen.reduce((total, img) => total + img.length, 0);
+    const maxTotalSize = 6 * 1024 * 1024; // 6MB total
+    if (totalSize > maxTotalSize) {
+      setMensaje("El tamaño total de las imágenes es demasiado grande. Reduce la cantidad o calidad de las imágenes.");
+      return;
+    }
+    
     setLoading(true);
     try {
       await axios.put(`${API_URL}/donations/${id}`, form);
       setMensaje("¡Donación actualizada exitosamente!");
       setTimeout(() => navigate("/mis-donaciones"), 1200);
-    } catch {
-      setMensaje("Error al actualizar la donación.");
+    } catch (error) {
+      if (error.response && error.response.status === 413) {
+        setMensaje("Las imágenes son demasiado grandes. Reduce el tamaño o la cantidad de imágenes.");
+      } else {
+        setMensaje("Error al actualizar la donación.");
+      }
     }
     setLoading(false);
   };
@@ -202,14 +226,25 @@ const EditDonation = () => {
     try {
       const newImages = [];
       for (const file of files) {
+        // Configuración más agresiva de compresión
         const compressedFile = await imageCompression(file, {
-          maxSizeMB: 1,
-          maxWidthOrHeight: 1024,
-          useWebWorker: true
+          maxSizeMB: 0.8, // Reducir a 0.8MB por imagen
+          maxWidthOrHeight: 800, // Reducir resolución
+          useWebWorker: true,
+          quality: 0.7 // Reducir calidad para menor tamaño
         });
         
         const reader = new FileReader();
         reader.onloadend = () => {
+          const base64Size = reader.result.length;
+          const maxSize = 2 * 1024 * 1024; // 2MB máximo por imagen en base64
+          
+          if (base64Size > maxSize) {
+            setMensaje("Una imagen es demasiado grande incluso después de la compresión. Intenta con una imagen más pequeña.");
+            setCompressing(false);
+            return;
+          }
+          
           newImages.push(reader.result);
           if (newImages.length === files.length) {
             setForm(prev => ({ ...prev, imagen: newImages }));
@@ -220,7 +255,7 @@ const EditDonation = () => {
       }
     } catch (error) {
       console.error('Error al comprimir las imágenes:', error);
-      setMensaje("Error al comprimir las imágenes. Intenta nuevamente.");
+      setMensaje("Error al comprimir las imágenes. Intenta con imágenes más pequeñas.");
       setCompressing(false);
     }
   };
