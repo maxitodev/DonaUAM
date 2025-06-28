@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const Donation = require('../../models/donation');
+const User = require('../../models/user');
+const emailService = require('../../services/emailService');
 
 // Increase payload limit for this router
 router.use(express.json({ limit: '50mb' }));
@@ -60,6 +62,18 @@ router.post('/', async (req, res) => {
       estado // opcional, por defecto "Activo"
     });
     await donation.save();
+
+    // Enviar email de confirmación al usuario
+    try {
+      const usuario = await User.findById(donation.usuario);
+      if (usuario && usuario.correo) {
+        await emailService.enviarCorreoDonacionRegistrada(usuario, donation);
+      }
+    } catch (emailError) {
+      console.error('Error enviando email de donación registrada:', emailError);
+      // No fallar la creación de la donación por error de email
+    }
+
     res.status(201).json(donation);
   } catch (err) {
     if (err.type === 'entity.too.large') {

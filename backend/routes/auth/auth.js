@@ -6,6 +6,7 @@ const User = require('../../models/user');
 const multer = require('multer');
 const authJwt = require('../../middlewares/jwt');
 const passport = require('../../config/passport'); // Ensure correct path to passport.js
+const emailService = require('../../services/emailService');
 
 const router = express.Router();
 
@@ -61,6 +62,16 @@ router.post(
       const hash = await bcrypt.hash(contrasena, 10);
       const user = new User({ nombre, correo, contrasena: hash, imagenURL: imagenBase64 });
       await user.save();
+      
+      // Enviar email de bienvenida
+      try {
+        await emailService.enviarCorreoBienvenida(user);
+        console.log(`✅ Email de bienvenida enviado a ${user.correo}`);
+      } catch (emailError) {
+        console.error('❌ Error enviando email de bienvenida:', emailError);
+        // No fallar el registro si el email falla
+      }
+      
       // Mensaje de éxito claro
       res.status(201).json({ message: 'Usuario registrado correctamente.' });
     } catch (err) {

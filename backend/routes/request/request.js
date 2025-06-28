@@ -4,6 +4,7 @@ const Request = require('../../models/request');
 const Donation = require('../../models/donation');
 const jwt = require('../../middlewares/jwt');
 const User = require('../../models/user');
+const emailService = require('../../services/emailService');
 
 // Crear una solicitud para una donación
 router.post('/:donacionId', jwt, async (req, res) => {
@@ -41,6 +42,24 @@ router.post('/:donacionId', jwt, async (req, res) => {
       usuario: userId
     });
     await nuevaSolicitud.save();
+
+    // Enviar email al solicitante confirmando que su solicitud fue enviada
+    try {
+      await emailService.enviarCorreoSolicitudEnviada(user, donacion);
+    } catch (emailError) {
+      console.error('Error enviando email de solicitud enviada:', emailError);
+    }
+
+    // Enviar email al donador notificando que recibió una nueva solicitud
+    try {
+      const donador = await User.findById(donacion.usuario);
+      if (donador && donador.correo) {
+        await emailService.enviarCorreoSolicitudRecibida(donador, user, donacion);
+      }
+    } catch (emailError) {
+      console.error('Error enviando email de solicitud recibida al donador:', emailError);
+    }
+
     res.status(201).json(nuevaSolicitud);
   } catch (error) {
     res.status(500).json({ message: 'Error al crear la solicitud', error });
@@ -103,6 +122,26 @@ router.patch('/:requestId/estado', jwt, async (req, res) => {
 
     solicitud.estado = estado;
     await solicitud.save();
+
+    // Enviar emails según el estado actualizado
+    try {
+      if (estado === 'aprobada') {
+        // Email al solicitante notificando aprobación
+        const solicitante = await User.findById(solicitud.usuario);
+        const donador = await User.findById(solicitud.donacion.usuario);
+        if (solicitante && solicitante.correo) {
+          await emailService.enviarCorreoSolicitudAprobada(solicitante, solicitud.donacion, donador);
+        }
+      } else if (estado === 'rechazada') {
+        // Email al solicitante notificando rechazo
+        const solicitante = await User.findById(solicitud.usuario);
+        if (solicitante && solicitante.correo) {
+          await emailService.enviarCorreoSolicitudRechazada(solicitante, solicitud.donacion);
+        }
+      }
+    } catch (emailError) {
+      console.error('Error enviando email de cambio de estado:', emailError);
+    }
 
     res.json({ message: 'Estado actualizado correctamente', solicitud });
   } catch (error) {

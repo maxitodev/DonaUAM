@@ -1,6 +1,7 @@
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const User = require('../models/user');
+const emailService = require('../services/emailService');
 
 // Configuración dinámica de URL según el entorno
 const getCallbackURL = () => `${process.env.BACKEND_URL}/api/auth/google/callback`;
@@ -43,6 +44,16 @@ passport.use(new GoogleStrategy({
             });
             
             await newUser.save();
+            
+            // Enviar email de bienvenida para nuevos usuarios de Google
+            try {
+                await emailService.enviarCorreoBienvenida(newUser);
+                console.log(`✅ Email de bienvenida enviado a ${newUser.correo} (registro con Google)`);
+            } catch (emailError) {
+                console.error('❌ Error enviando email de bienvenida (Google):', emailError);
+                // No fallar el registro si el email falla
+            }
+            
             return done(null, newUser);
         }
     } catch (error) {
