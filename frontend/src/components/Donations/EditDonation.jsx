@@ -78,31 +78,50 @@ const EditDonation = () => {
     setMensaje("");
     
     try {
+      const processedImages = [];
+      
       for (const file of files) {
-        // Configuración más agresiva de compresión
+        // Configuración muy agresiva de compresión
         const compressedFile = await imageCompression(file, {
-          maxSizeMB: 0.8, // Reducir a 0.8MB por imagen
-          maxWidthOrHeight: 800, // Reducir resolución
+          maxSizeMB: 0.5, // Reducir a 0.5MB por imagen
+          maxWidthOrHeight: 600, // Reducir resolución más
           useWebWorker: true,
-          quality: 0.7 // Reducir calidad para menor tamaño
+          quality: 0.6, // Reducir calidad más
+          initialQuality: 0.6
         });
         
         const reader = new FileReader();
         reader.onloadend = () => {
           const base64Size = reader.result.length;
-          const maxSize = 2 * 1024 * 1024; // 2MB máximo por imagen en base64
+          const maxSize = 1.5 * 1024 * 1024; // 1.5MB máximo por imagen en base64
           
           if (base64Size > maxSize) {
-            setMensaje("Una imagen es demasiado grande incluso después de la compresión. Intenta con una imagen más pequeña.");
+            setMensaje("Una imagen es demasiado grande incluso después de la compresión. Intenta con una imagen más pequeña o de menor resolución.");
             setCompressing(false);
             return;
           }
           
-          setForm((prev) => ({ ...prev, imagen: [...prev.imagen, reader.result] }));
+          processedImages.push(reader.result);
+          
+          // Validar tamaño total antes de agregar
+          const currentTotalSize = form.imagen.reduce((total, img) => total + img.length, 0);
+          const newTotalSize = processedImages.reduce((total, img) => total + img.length, 0);
+          const finalTotalSize = currentTotalSize + newTotalSize;
+          const maxTotalSize = 4 * 1024 * 1024; // 4MB total máximo
+          
+          if (finalTotalSize > maxTotalSize) {
+            setMensaje("El tamaño total de las imágenes excedería el límite permitido. Reduce la cantidad o calidad de las imágenes.");
+            setCompressing(false);
+            return;
+          }
+          
+          if (processedImages.length === files.length) {
+            setForm((prev) => ({ ...prev, imagen: [...prev.imagen, ...processedImages] }));
+            setCompressing(false);
+          }
         };
         reader.readAsDataURL(compressedFile);
       }
-      setCompressing(false);
     } catch (error) {
       console.error('Error al comprimir la imagen:', error);
       setMensaje("Error al comprimir la imagen. Intenta con una imagen más pequeña.");
@@ -124,8 +143,8 @@ const EditDonation = () => {
     }
     // Validar mínimo y máximo de caracteres en nombre (título)
     const nombreLen = form.nombre.trim().length;
-    if (nombreLen < 3) {
-      setMensaje("El título debe tener al menos 3 caracteres.");
+    if (nombreLen < 10) {
+      setMensaje("El título debe tener al menos 10 caracteres.");
       return;
     }
     if (nombreLen > 40) {
@@ -133,8 +152,8 @@ const EditDonation = () => {
       return;
     }
     const descLen = form.descripcion.trim().length;
-    if (descLen < 50) {
-      setMensaje("La descripción debe tener al menos 50 caracteres.");
+    if (descLen < 20) {
+      setMensaje("La descripción debe tener al menos 20 caracteres.");
       return;
     }
     if (descLen > 200) {
@@ -142,9 +161,9 @@ const EditDonation = () => {
       return;
     }
     
-    // Validar tamaño total antes de enviar
+    // Validar tamaño total antes de enviar con límite más estricto
     const totalSize = form.imagen.reduce((total, img) => total + img.length, 0);
-    const maxTotalSize = 6 * 1024 * 1024; // 6MB total
+    const maxTotalSize = 4 * 1024 * 1024; // 4MB total
     if (totalSize > maxTotalSize) {
       setMensaje("El tamaño total de las imágenes es demasiado grande. Reduce la cantidad o calidad de las imágenes.");
       return;
@@ -158,6 +177,8 @@ const EditDonation = () => {
     } catch (error) {
       if (error.response && error.response.status === 413) {
         setMensaje("Las imágenes son demasiado grandes. Reduce el tamaño o la cantidad de imágenes.");
+      } else if (error.response && error.response.data && error.response.data.error) {
+        setMensaje(error.response.data.error);
       } else {
         setMensaje("Error al actualizar la donación.");
       }
@@ -225,28 +246,40 @@ const EditDonation = () => {
     
     try {
       const newImages = [];
+      
       for (const file of files) {
-        // Configuración más agresiva de compresión
+        // Configuración muy agresiva de compresión
         const compressedFile = await imageCompression(file, {
-          maxSizeMB: 0.8, // Reducir a 0.8MB por imagen
-          maxWidthOrHeight: 800, // Reducir resolución
+          maxSizeMB: 0.5, // Reducir a 0.5MB por imagen
+          maxWidthOrHeight: 600, // Reducir resolución más
           useWebWorker: true,
-          quality: 0.7 // Reducir calidad para menor tamaño
+          quality: 0.6, // Reducir calidad más
+          initialQuality: 0.6
         });
         
         const reader = new FileReader();
         reader.onloadend = () => {
           const base64Size = reader.result.length;
-          const maxSize = 2 * 1024 * 1024; // 2MB máximo por imagen en base64
+          const maxSize = 1.5 * 1024 * 1024; // 1.5MB máximo por imagen en base64
           
           if (base64Size > maxSize) {
-            setMensaje("Una imagen es demasiado grande incluso después de la compresión. Intenta con una imagen más pequeña.");
+            setMensaje("Una imagen es demasiado grande incluso después de la compresión. Intenta con una imagen más pequeña o de menor resolución.");
             setCompressing(false);
             return;
           }
           
           newImages.push(reader.result);
           if (newImages.length === files.length) {
+            // Validar tamaño total
+            const totalSize = newImages.reduce((total, img) => total + img.length, 0);
+            const maxTotalSize = 4 * 1024 * 1024; // 4MB total
+            
+            if (totalSize > maxTotalSize) {
+              setMensaje("El tamaño total de las imágenes excede el límite permitido. Reduce la cantidad o calidad de las imágenes.");
+              setCompressing(false);
+              return;
+            }
+            
             setForm(prev => ({ ...prev, imagen: newImages }));
             setCompressing(false);
           }
@@ -280,13 +313,13 @@ const EditDonation = () => {
                   value={form.nombre}
                   onChange={handleChange}
                   required
-                  minLength={3}
+                  minLength={10}
                   maxLength={40}
                   className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl border border-indigo-200 focus:ring-2 focus:ring-pink-400 outline-none transition text-sm sm:text-base"
                   placeholder="Ej. Calculadora Científica"
                 />
-                {form.nombre && form.nombre.trim().length > 0 && form.nombre.trim().length < 3 && (
-                  <div className="text-pink-700 text-xs sm:text-sm mt-1">El título debe tener al menos 3 caracteres.</div>
+                {form.nombre && form.nombre.trim().length > 0 && form.nombre.trim().length < 10 && (
+                  <div className="text-pink-700 text-xs sm:text-sm mt-1">El título debe tener al menos 10 caracteres.</div>
                 )}
                 {form.nombre && form.nombre.trim().length > 40 && (
                   <div className="text-pink-700 text-xs sm:text-sm mt-1">El título no debe exceder los 40 caracteres.</div>
@@ -315,14 +348,14 @@ const EditDonation = () => {
                   value={form.descripcion}
                   onChange={handleChange}
                   required
-                  minLength={50}
+                  minLength={20}
                   maxLength={200}
                   rows={3}
                   className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl border border-indigo-200 focus:ring-2 focus:ring-pink-400 outline-none transition resize-none text-sm sm:text-base"
-                  placeholder="Describe el estado, uso, detalles relevantes... (mínimo 50, máximo 200 caracteres)"
+                  placeholder="Describe el estado, uso, detalles relevantes... (mínimo 20, máximo 200 caracteres)"
                 />
-                {form.descripcion && form.descripcion.trim().length > 0 && form.descripcion.trim().length < 50 && (
-                  <div className="text-pink-700 text-xs sm:text-sm mt-1">La descripción debe tener al menos 50 caracteres.</div>
+                {form.descripcion && form.descripcion.trim().length > 0 && form.descripcion.trim().length < 20 && (
+                  <div className="text-pink-700 text-xs sm:text-sm mt-1">La descripción debe tener al menos 20 caracteres.</div>
                 )}
                 {form.descripcion && form.descripcion.trim().length > 200 && (
                   <div className="text-pink-700 text-xs sm:text-sm mt-1">La descripción no debe exceder los 200 caracteres.</div>

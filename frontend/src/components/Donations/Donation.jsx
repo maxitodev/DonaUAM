@@ -112,8 +112,8 @@ const Donation = () => {
     }
     // Validar mínimo y máximo de caracteres en nombre (título)
     const nombreLen = form.nombre.trim().length;
-    if (nombreLen < 3) {
-      setMensaje("El título debe tener al menos 3 caracteres.");
+    if (nombreLen < 10) {
+      setMensaje("El título debe tener al menos 10 caracteres.");
       setLoading(false);
       return;
     }
@@ -124,8 +124,8 @@ const Donation = () => {
     }
     // Validar mínimo y máximo de caracteres en descripción
     const descLen = form.descripcion.trim().length;
-    if (descLen < 50) {
-      setMensaje("La descripción debe tener al menos 50 caracteres.");
+    if (descLen < 20) {
+      setMensaje("La descripción debe tener al menos 20 caracteres.");
       setLoading(false);
       return;
     }
@@ -206,13 +206,13 @@ const Donation = () => {
                 value={form.nombre}
                 onChange={handleChange}
                 required
-                minLength={3}
+                minLength={10}
                 maxLength={40}
                 className="w-full px-4 py-3 rounded-xl border border-indigo-200 focus:ring-2 focus:ring-pink-400 outline-none transition cursor-text hover:border-pink-300"
                 placeholder="Ej. Calculadora Científica"
               />
-              {form.nombre && form.nombre.trim().length > 0 && form.nombre.trim().length < 3 && (
-                <div className="text-pink-700 text-sm mt-1">El título debe tener al menos 3 caracteres.</div>
+              {form.nombre && form.nombre.trim().length > 0 && form.nombre.trim().length < 10 && (
+                <div className="text-pink-700 text-sm mt-1">El título debe tener al menos 10 caracteres.</div>
               )}
               {form.nombre && form.nombre.trim().length > 40 && (
                 <div className="text-pink-700 text-sm mt-1">El título no debe exceder los 40 caracteres.</div>
@@ -241,14 +241,14 @@ const Donation = () => {
                 value={form.descripcion}
                 onChange={handleChange}
                 required
-                minLength={50}
+                minLength={20}
                 maxLength={200}
                 rows={3}
                 className="w-full px-4 py-3 rounded-xl border border-indigo-200 focus:ring-2 focus:ring-pink-400 outline-none transition resize-none cursor-text hover:border-pink-300"
-                placeholder="Describe el estado, uso, detalles relevantes... (mínimo 50, máximo 200 caracteres)"
+                placeholder="Describe el estado, uso, detalles relevantes... (mínimo 20, máximo 200 caracteres)"
               />
-              {form.descripcion && form.descripcion.trim().length > 0 && form.descripcion.trim().length < 50 && (
-                <div className="text-pink-700 text-sm mt-1">La descripción debe tener al menos 50 caracteres.</div>
+              {form.descripcion && form.descripcion.trim().length > 0 && form.descripcion.trim().length < 20 && (
+                <div className="text-pink-700 text-sm mt-1">La descripción debe tener al menos 20 caracteres.</div>
               )}
               {form.descripcion && form.descripcion.trim().length > 200 && (
                 <div className="text-pink-700 text-sm mt-1">La descripción no debe exceder los 200 caracteres.</div>

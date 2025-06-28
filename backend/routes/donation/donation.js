@@ -21,7 +21,7 @@ router.post('/', async (req, res) => {
   try {
     const { nombre, descripcion, categoria, imagen, usuario, estado } = req.body;
     
-    // Validar que la imagen no exceda un tamaño máximo (5MB después de compresión)
+    // Validar que la imagen no exceda un tamaño máximo
     if (imagen && imagen.length > 0) {
       // Validar que no haya más de 3 imágenes
       if (imagen.length > 3) {
@@ -33,20 +33,20 @@ router.post('/', async (req, res) => {
       // Validar el tamaño de cada imagen con límite más estricto
       for (let i = 0; i < imagen.length; i++) {
         const base64Size = Buffer.byteLength(imagen[i], 'utf8');
-        const maxSize = 3 * 1024 * 1024; // Reducir a 3MB por imagen
+        const maxSize = 2 * 1024 * 1024; // Reducir a 2MB por imagen
         if (base64Size > maxSize) {
           return res.status(413).json({ 
-            error: `La imagen ${i + 1} es demasiado grande. El tamaño máximo permitido es 3MB por imagen.` 
+            error: `La imagen ${i + 1} es demasiado grande. El tamaño máximo permitido es 2MB por imagen.` 
           });
         }
       }
       
       // Validar tamaño total de todas las imágenes
       const totalSize = imagen.reduce((total, img) => total + Buffer.byteLength(img, 'utf8'), 0);
-      const maxTotalSize = 8 * 1024 * 1024; // 8MB total
+      const maxTotalSize = 5 * 1024 * 1024; // 5MB total
       if (totalSize > maxTotalSize) {
         return res.status(413).json({ 
-          error: 'El tamaño total de las imágenes excede el límite permitido de 8MB.' 
+          error: 'El tamaño total de las imágenes excede el límite permitido de 5MB.' 
         });
       }
     }
@@ -64,6 +64,10 @@ router.post('/', async (req, res) => {
   } catch (err) {
     if (err.type === 'entity.too.large') {
       return res.status(413).json({ error: 'Las imágenes son demasiado grandes. Reduce el tamaño o la cantidad de imágenes.' });
+    }
+    if (err.name === 'ValidationError') {
+      const message = Object.values(err.errors)[0].message;
+      return res.status(400).json({ error: message });
     }
     res.status(400).json({ error: 'Error al crear la donación' });
   }
@@ -142,7 +146,7 @@ router.put('/:id', async (req, res) => {
     const { id } = req.params;
     const { nombre, descripcion, categoria, imagen } = req.body;
     
-    // Validar que la imagen no exceda un tamaño máximo (5MB después de compresión)
+    // Validar que la imagen no exceda un tamaño máximo
     if (imagen && imagen.length > 0) {
       // Validar que no haya más de 3 imágenes
       if (imagen.length > 3) {
@@ -154,20 +158,20 @@ router.put('/:id', async (req, res) => {
       // Validar el tamaño de cada imagen con límite más estricto
       for (let i = 0; i < imagen.length; i++) {
         const base64Size = Buffer.byteLength(imagen[i], 'utf8');
-        const maxSize = 3 * 1024 * 1024; // Reducir a 3MB por imagen
+        const maxSize = 2 * 1024 * 1024; // Reducir a 2MB por imagen
         if (base64Size > maxSize) {
           return res.status(413).json({ 
-            error: `La imagen ${i + 1} es demasiado grande. El tamaño máximo permitido es 3MB por imagen.` 
+            error: `La imagen ${i + 1} es demasiado grande. El tamaño máximo permitido es 2MB por imagen.` 
           });
         }
       }
       
       // Validar tamaño total de todas las imágenes
       const totalSize = imagen.reduce((total, img) => total + Buffer.byteLength(img, 'utf8'), 0);
-      const maxTotalSize = 8 * 1024 * 1024; // 8MB total
+      const maxTotalSize = 5 * 1024 * 1024; // 5MB total
       if (totalSize > maxTotalSize) {
         return res.status(413).json({ 
-          error: 'El tamaño total de las imágenes excede el límite permitido de 8MB.' 
+          error: 'El tamaño total de las imágenes excede el límite permitido de 5MB.' 
         });
       }
     }
@@ -175,7 +179,7 @@ router.put('/:id', async (req, res) => {
     const updated = await Donation.findByIdAndUpdate(
       id,
       { nombre, descripcion, categoria, imagen },
-      { new: true }
+      { new: true, runValidators: true }
     );
     if (!updated) {
       return res.status(404).json({ error: 'Donación no encontrada' });
@@ -184,6 +188,10 @@ router.put('/:id', async (req, res) => {
   } catch (err) {
     if (err.type === 'entity.too.large') {
       return res.status(413).json({ error: 'Las imágenes son demasiado grandes. Reduce el tamaño o la cantidad de imágenes.' });
+    }
+    if (err.name === 'ValidationError') {
+      const message = Object.values(err.errors)[0].message;
+      return res.status(400).json({ error: message });
     }
     res.status(400).json({ error: 'Error al actualizar la donación' });
   }

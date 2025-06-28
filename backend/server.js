@@ -19,8 +19,8 @@ app.use(cors({
 }));
 
 // Middleware para parsear JSON (aumenta el límite de tamaño)
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ limit: '10mb', extended: true }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Conexión a MongoDB con opciones recomendadas
 mongoose.connect(process.env.MONGO_URI)
