@@ -6,6 +6,7 @@ import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import useRedirectIfAuthenticated from '../../hooks/useRedirectIfAuthenticated'
 import imageCompression from 'browser-image-compression'
+import GoogleLoginButton from './GoogleLoginButton'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -19,11 +20,38 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false)
   const [compressing, setCompressing] = useState(false)
   const [imageInfo, setImageInfo] = useState(null)
+  const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
   const formRef = useRef(null)
   const bgRef = useRef(null)
 
   useEffect(() => {
+    // Manejar errores de Google OAuth desde la URL
+    const urlParams = new URLSearchParams(window.location.search)
+    const error = urlParams.get('error')
+    
+    if (error) {
+      switch (error) {
+        case 'invalid-domain':
+          setErrores({ general: '❌ Solo se permiten correos institucionales @cua.uam.mx. Por favor, usa tu cuenta de la universidad.' })
+          break
+        case 'google-auth-failed':
+          setErrores({ general: '❌ Error al registrarse con Google. Verifica que uses tu correo @cua.uam.mx' })
+          break
+        case 'unauthorized':
+          setErrores({ general: '❌ No tienes autorización para acceder. Solo correos @cua.uam.mx' })
+          break
+        case 'server':
+          setErrores({ general: '❌ Error del servidor. Por favor, intenta de nuevo' })
+          break
+        default:
+          setErrores({ general: '❌ Error desconocido en la autenticación' })
+      }
+      
+      // Limpiar la URL
+      window.history.replaceState({}, document.title, window.location.pathname)
+    }
+
     const lenis = new Lenis()
     const raf = (time) => {
       lenis.raf(time)
@@ -127,6 +155,7 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setLoading(true)
     const nuevosErrores = {}
 
     if (!validarNombre(form.nombre)) nuevosErrores.nombre = 'Escribe tu nombre completo (mínimo nombre y apellido, solo letras).'
@@ -137,6 +166,7 @@ const Register = () => {
 
     if (Object.keys(nuevosErrores).length > 0) {
       setErrores(nuevosErrores)
+      setLoading(false)
       return
     }
 
@@ -158,6 +188,8 @@ const Register = () => {
       setTimeout(() => navigate('/login'), 3000)
     } catch (error) {
       setErrores({ general: error.response?.data?.message || 'Error en el registro' })
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -185,6 +217,21 @@ const Register = () => {
         {success && <div className="bg-green-200 text-green-900 p-3 rounded text-center font-medium">{success}</div>}
         {errores.general && <div className="bg-red-200 text-red-800 p-3 rounded text-center font-medium">{errores.general}</div>}
 
+        {/* Botón de Google */}
+        <div className="space-y-4">
+          <GoogleLoginButton disabled={loading || compressing} />
+          
+          {/* Divisor */}
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-4 bg-white text-gray-500 font-medium">O regístrate con tu correo</span>
+            </div>
+          </div>
+        </div>
+
         {['nombre', 'correo', 'contrasena'].map((campo) => (
           <div key={campo} className="space-y-2">
             <label className="font-medium text-gray-700 capitalize">{campo.replace('contrasena', 'Contraseña segura')}:</label>
@@ -210,7 +257,8 @@ const Register = () => {
                 value={form[campo]}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-purple-400 outline-none transition duration-200 focus:scale-[1.02] pr-12"
+                disabled={loading || compressing}
+                className="w-full px-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-purple-400 outline-none transition duration-200 focus:scale-[1.02] pr-12 disabled:opacity-50 disabled:cursor-not-allowed"
                 placeholder={
                   campo === 'nombre'
                     ? 'Ej. Juan Pérez'
@@ -259,7 +307,7 @@ const Register = () => {
           <div className="flex items-center space-x-4">
             <label
               htmlFor="imagen"
-              className={`cursor-pointer inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-400 to-purple-400 text-white font-semibold rounded-lg shadow-md hover:from-blue-500 hover:to-purple-500 transition-all duration-300 transform hover:scale-105 ${compressing ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`cursor-pointer inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-400 to-purple-400 text-white font-semibold rounded-lg shadow-md hover:from-blue-500 hover:to-purple-500 transition-all duration-300 transform hover:scale-105 ${(compressing || loading) ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               {compressing ? (
                 <>
@@ -286,7 +334,7 @@ const Register = () => {
                 onChange={handleFileChange}
                 required
                 className="hidden"
-                disabled={compressing}
+                disabled={compressing || loading}
               />
             </label>
             <span className="text-gray-600 text-sm truncate max-w-[180px]">
@@ -317,9 +365,20 @@ const Register = () => {
 
         <button
           type="submit"
-          className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white py-2.5 rounded-xl text-lg font-bold transition-transform duration-300 transform hover:scale-105"
+          disabled={loading || compressing}
+          className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white py-2.5 rounded-xl text-lg font-bold transition-transform duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
         >
-          Registrarse
+          {loading ? (
+            <div className="flex items-center justify-center">
+              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Registrando...
+            </div>
+          ) : (
+            'Registrarse'
+          )}
         </button>
         <div className="text-center mt-4">
           <span className="text-gray-700">¿Ya tienes cuenta? </span>

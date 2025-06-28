@@ -15,7 +15,15 @@ const userSchema = new mongoose.Schema({
     },
     contrasena: {
         type: String,
-        required: true
+        required: function() {
+            // La contraseña es requerida solo si no hay googleId
+            return !this.googleId;
+        }
+    },
+    googleId: {
+        type: String,
+        sparse: true, // Permite valores únicos y nulos
+        unique: true
     },
     imagenURL: {
         type: String, 

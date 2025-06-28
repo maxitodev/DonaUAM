@@ -5,6 +5,7 @@ const { body, validationResult } = require('express-validator');
 const User = require('../../models/user');
 const multer = require('multer');
 const authJwt = require('../../middlewares/jwt');
+const passport = require('../../config/passport'); // Ensure correct path to passport.js
 
 const router = express.Router();
 
@@ -122,6 +123,78 @@ router.get('/me', authJwt, async (req, res) => {
     res.json(user);
   } catch (err) {
     res.status(500).json({ message: 'Error en el servidor', error: err.message });
+  }
+});
+
+// Rutas de Google OAuth
+router.get('/google',
+  (req, res, next) => {
+    next();
+  },
+  passport.authenticate('google', { scope: ['profile', 'email'] })
+);
+
+router.get('/google/callback',
+  (req, res, next) => {
+    passport.authenticate('google', { session: false }, (err, user, info) => {
+      if (err) {
+        return res.redirect(`${process.env.FRONTEND_URL}/login?error=server`);
+      }
+      
+      if (!user) {
+        if (info && info.type === 'domain_error') {
+          return res.redirect(`${process.env.FRONTEND_URL}/login?error=invalid-domain`);
+        }
+        return res.redirect(`${process.env.FRONTEND_URL}/login?error=unauthorized`);
+      }
+      
+      req.user = user;
+      next();
+    })(req, res, next);
+  },
+  async (req, res) => {
+    try {
+      const token = jwt.sign(
+        { id: req.user._id, correo: req.user.correo, nombre: req.user.nombre },
+        process.env.JWT_SECRET,
+        { expiresIn: '24h' }
+      );
+      res.redirect(`${process.env.FRONTEND_URL}/auth/google/success?token=${token}`);
+    } catch (error) {
+      res.redirect(`${process.env.FRONTEND_URL}/login?error=server`);
+    }
+  }
+);
+
+// Endpoint para obtener token desde el frontend después de Google OAuth
+router.post('/google/token', async (req, res) => {
+  try {
+    const { token } = req.body;
+    
+    if (!token) {
+      return res.status(400).json({ message: 'Token requerido' });
+    }
+
+    // Verificar el token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id).select('-contrasena');
+    
+    if (!user) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    res.json({
+      message: 'Inicio de sesión exitoso con Google.',
+      token,
+      user: { 
+        id: user._id, 
+        nombre: user.nombre, 
+        correo: user.correo, 
+        imagenURL: user.imagenURL 
+      }
+    });
+  } catch (error) {
+    res.status(400).json({ message: 'Token inválido' });
   }
 });
 

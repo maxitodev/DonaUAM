@@ -6,6 +6,7 @@ import './index.css'
 import App from './App.jsx'
 import Register from './components/Auth/Register.jsx'
 import Login from './components/Auth/Login.jsx'
+import GoogleAuthSuccess from './components/Auth/GoogleAuthSuccess.jsx'
 import Home from './components/Home.jsx'
 import Logout from './components/Navbar/Logout.jsx'
 import Donation from './components/Donations/Donation.jsx'
@@ -23,6 +24,7 @@ createRoot(document.getElementById('root')).render(
         <Route path="/" element={<App />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/auth/google/success" element={<GoogleAuthSuccess />} />
         <Route
           path="/home"
           element={

@@ -5,6 +5,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useNavigate } from 'react-router-dom';
 import useRedirectIfAuthenticated from '../../hooks/useRedirectIfAuthenticated';
+import GoogleLoginButton from './GoogleLoginButton';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -25,6 +26,38 @@ const Login = ({ onLogin }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Manejar errores de Google OAuth desde la URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const error = urlParams.get('error');
+    
+    if (error) {
+      switch (error) {
+        case 'invalid-domain':
+          setServerError('❌ Solo se permiten correos institucionales @cua.uam.mx. Por favor, usa tu cuenta de la universidad.');
+          break;
+        case 'google-auth-failed':
+          setServerError('❌ Error al iniciar sesión con Google. Verifica que uses tu correo @cua.uam.mx');
+          break;
+        case 'unauthorized':
+          setServerError('❌ No tienes autorización para acceder. Solo correos @cua.uam.mx');
+          break;
+        case 'token-verification-failed':
+          setServerError('❌ Error al verificar las credenciales de Google');
+          break;
+        case 'no-token':
+          setServerError('❌ Error en el proceso de autenticación');
+          break;
+        case 'server':
+          setServerError('❌ Error del servidor. Por favor, intenta de nuevo');
+          break;
+        default:
+          setServerError('❌ Error desconocido en la autenticación');
+      }
+      
+      // Limpiar la URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
     const lenis = new Lenis();
     const raf = (time) => {
       lenis.raf(time);
@@ -137,6 +170,21 @@ const Login = ({ onLogin }) => {
         <h2 className="text-4xl font-extrabold text-center text-indigo-800 tracking-tight">Iniciar Sesión</h2>
 
         {serverError && <div className="bg-red-200 text-red-800 p-3 rounded text-center font-medium">{serverError}</div>}
+
+        {/* Botón de Google */}
+        <div className="space-y-4">
+          <GoogleLoginButton disabled={loading} />
+          
+          {/* Divisor */}
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-4 bg-white text-gray-500 font-medium">O continúa con tu correo</span>
+            </div>
+          </div>
+        </div>
 
         <div className="space-y-2">
           <label htmlFor="correo" className="font-medium text-gray-700">Correo institucional:</label>
