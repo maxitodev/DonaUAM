@@ -220,7 +220,7 @@ class EmailService {
                   <!-- CTA Button -->
                   <div style="text-align: center; margin: 30px 0;">
                     <div class="button-container" style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
-                      <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/mis-solicitudes" class="cta-button" style="display: inline-block; background: linear-gradient(135deg, #4F46E5, #7C3AED); color: white; text-decoration: none; padding: 15px 35px; border-radius: 50px; font-weight: 600; font-size: 16px; box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3); transition: transform 0.2s; min-width: 200px; text-align: center;">
+                      <a href="${process.env.FRONTEND_URL}/mis-solicitudes" class="cta-button" style="display: inline-block; background: linear-gradient(135deg, #4F46E5, #7C3AED); color: white; text-decoration: none; padding: 15px 35px; border-radius: 50px; font-weight: 600; font-size: 16px; box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3); transition: transform 0.2s; min-width: 200px; text-align: center;">
                         Ver mis solicitudes →
                       </a>
                     </div>
@@ -306,7 +306,7 @@ class EmailService {
 
             <!-- CTA Button -->
             <div style="text-align: center; margin: 30px 0;">
-              <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/home" style="display: inline-block; background: linear-gradient(135deg, #059669, #10B981); color: white; text-decoration: none; padding: 15px 35px; border-radius: 50px; font-weight: 600; font-size: 16px; box-shadow: 0 10px 25px rgba(5, 150, 105, 0.3);">
+              <a href="${process.env.FRONTEND_URL}/home" style="display: inline-block; background: linear-gradient(135deg, #059669, #10B981); color: white; text-decoration: none; padding: 15px 35px; border-radius: 50px; font-weight: 600; font-size: 16px; box-shadow: 0 10px 25px rgba(5, 150, 105, 0.3);">
                 Explorar donaciones →
               </a>
             </div>
@@ -361,7 +361,7 @@ class EmailService {
               </p>
 
               <div style="text-align: center; margin: 30px 0;">
-                <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/home" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold; display: inline-block; transition: all 0.3s ease;">
+                <a href="${process.env.FRONTEND_URL}/home" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold; display: inline-block; transition: all 0.3s ease;">
                   🔍 Ver Donaciones Disponibles
                 </a>
               </div>
@@ -464,10 +464,10 @@ class EmailService {
 
             <!-- CTA Buttons -->
             <div style="text-align: center; margin: 30px 0; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
-              <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/solicitudes-donacion/${donacion._id || donacion.id || ''}" style="display: inline-block; background: linear-gradient(135deg, #059669, #10B981); color: white; text-decoration: none; padding: 15px 30px; border-radius: 50px; font-weight: 600; font-size: 16px; box-shadow: 0 10px 25px rgba(5, 150, 105, 0.3);">
+              <a href="${process.env.FRONTEND_URL}/solicitudes-donacion/${donacion._id || donacion.id || ''}" style="display: inline-block; background: linear-gradient(135deg, #059669, #10B981); color: white; text-decoration: none; padding: 15px 30px; border-radius: 50px; font-weight: 600; font-size: 16px; box-shadow: 0 10px 25px rgba(5, 150, 105, 0.3);">
                 ✅ Revisar solicitudes
               </a>
-              <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/mis-donaciones" style="display: inline-block; background: linear-gradient(135deg, #4F46E5, #7C3AED); color: white; text-decoration: none; padding: 15px 30px; border-radius: 50px; font-weight: 600; font-size: 16px; box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);">
+              <a href="${process.env.FRONTEND_URL}/mis-donaciones" style="display: inline-block; background: linear-gradient(135deg, #4F46E5, #7C3AED); color: white; text-decoration: none; padding: 15px 30px; border-radius: 50px; font-weight: 600; font-size: 16px; box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);">
                 📦 Mis donaciones
               </a>
             </div>
@@ -577,7 +577,7 @@ class EmailService {
 
             <!-- CTA Button -->
             <div style="text-align: center; margin: 30px 0;">
-              <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/mis-donaciones" style="display: inline-block; background: linear-gradient(135deg, #059669, #10B981); color: white; text-decoration: none; padding: 15px 35px; border-radius: 50px; font-weight: 600; font-size: 16px; box-shadow: 0 10px 25px rgba(5, 150, 105, 0.3);">
+              <a href="${process.env.FRONTEND_URL}/mis-donaciones" style="display: inline-block; background: linear-gradient(135deg, #059669, #10B981); color: white; text-decoration: none; padding: 15px 35px; border-radius: 50px; font-weight: 600; font-size: 16px; box-shadow: 0 10px 25px rgba(5, 150, 105, 0.3);">
                 Ver mis donaciones →
               </a>
             </div>
@@ -691,10 +691,10 @@ class EmailService {
 
             <!-- CTA Buttons -->
             <div style="text-align: center; margin: 30px 0; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
-              <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/mis-solicitudes" style="display: inline-block; background: linear-gradient(135deg, #EA580C, #F97316); color: white; text-decoration: none; padding: 15px 30px; border-radius: 50px; font-weight: 600; font-size: 16px; box-shadow: 0 10px 25px rgba(234, 88, 12, 0.3);">
+              <a href="${process.env.FRONTEND_URL}/mis-solicitudes" style="display: inline-block; background: linear-gradient(135deg, #EA580C, #F97316); color: white; text-decoration: none; padding: 15px 30px; border-radius: 50px; font-weight: 600; font-size: 16px; box-shadow: 0 10px 25px rgba(234, 88, 12, 0.3);">
                 📋 Mis solicitudes
               </a>
-              <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/home" style="display: inline-block; background: linear-gradient(135deg, #059669, #10B981); color: white; text-decoration: none; padding: 15px 30px; border-radius: 50px; font-weight: 600; font-size: 16px; box-shadow: 0 10px 25px rgba(5, 150, 105, 0.3);">
+              <a href="${process.env.FRONTEND_URL}/home" style="display: inline-block; background: linear-gradient(135deg, #059669, #10B981); color: white; text-decoration: none; padding: 15px 30px; border-radius: 50px; font-weight: 600; font-size: 16px; box-shadow: 0 10px 25px rgba(5, 150, 105, 0.3);">
                 🔍 Explorar más
               </a>
             </div>
@@ -784,10 +784,10 @@ class EmailService {
                     <p class="text-content" style="color: #666; margin-bottom: 20px; font-size: 16px;">Explora las donaciones disponibles o crea tu primera donación</p>
                     
                     <div class="button-container" style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
-                      <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/home" class="cta-button" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 12px 25px; text-decoration: none; border-radius: 25px; font-weight: bold; display: inline-block; margin: 5px; min-width: 140px; text-align: center;">
+                      <a href="${process.env.FRONTEND_URL}/home" class="cta-button" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 12px 25px; text-decoration: none; border-radius: 25px; font-weight: bold; display: inline-block; margin: 5px; min-width: 140px; text-align: center;">
                         🏠 Ir al Inicio
                       </a>
-                      <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/donar" class="cta-button" style="background: linear-gradient(135deg, #00b894, #00a085); color: white; padding: 12px 25px; text-decoration: none; border-radius: 25px; font-weight: bold; display: inline-block; margin: 5px; min-width: 140px; text-align: center;">
+                      <a href="${process.env.FRONTEND_URL}/donar" class="cta-button" style="background: linear-gradient(135deg, #00b894, #00a085); color: white; padding: 12px 25px; text-decoration: none; border-radius: 25px; font-weight: bold; display: inline-block; margin: 5px; min-width: 140px; text-align: center;">
                         🎁 Crear Donación
                       </a>
                     </div>
