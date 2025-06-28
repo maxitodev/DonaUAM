@@ -5,6 +5,7 @@ import Lenis from '@studio-freight/lenis'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import useRedirectIfAuthenticated from '../../hooks/useRedirectIfAuthenticated'
+import imageCompression from 'browser-image-compression'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -16,6 +17,8 @@ const Register = () => {
   const [errores, setErrores] = useState({})
   const [success, setSuccess] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [compressing, setCompressing] = useState(false)
+  const [imageInfo, setImageInfo] = useState(null)
   const navigate = useNavigate()
   const formRef = useRef(null)
   const bgRef = useRef(null)
@@ -91,13 +94,35 @@ const Register = () => {
   }
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value })
-    setErrores({ ...errores, [e.target.name]: undefined })
+    const { name, value } = e.target
+    const campo = name === 'name' ? 'nombre' : name === 'email' ? 'correo' : 'contrasena'
+    setForm({ ...form, [campo]: value })
+    setErrores({ ...errores, [campo]: undefined })
   }
 
-  const handleFileChange = (e) => {
-    setImagen(e.target.files[0])
-    setErrores({ ...errores, imagen: undefined })
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+
+    try {
+      setCompressing(true)
+      const compressedFile = await imageCompression(file, {
+        maxSizeMB: 1,
+        maxWidthOrHeight: 1024,
+        useWebWorker: true
+      })
+      setImagen(compressedFile)
+      setImageInfo({
+        size: compressedFile.size,
+        width: compressedFile.width,
+        height: compressedFile.height
+      })
+      setErrores({ ...errores, imagen: undefined })
+    } catch (error) {
+      setErrores({ ...errores, imagen: error.message })
+    } finally {
+      setCompressing(false)
+    }
   }
 
   const handleSubmit = async (e) => {
@@ -128,6 +153,7 @@ const Register = () => {
       setSuccess('¡Registro exitoso! Serás redirigido para iniciar sesión en 3 segundos...')
       setForm({ nombre: '', correo: '', contrasena: '' })
       setImagen(null)
+      setImageInfo(null)
       setErrores({})
       setTimeout(() => navigate('/login'), 3000)
     } catch (error) {
@@ -171,7 +197,16 @@ const Register = () => {
                     ? 'email'
                     : 'text'
                 }
-                name={campo}
+                name={
+                  campo === 'nombre' ? 'name' :
+                  campo === 'correo' ? 'email' :
+                  'password'
+                }
+                autoComplete={
+                  campo === 'nombre' ? 'name' :
+                  campo === 'correo' ? 'email' :
+                  'new-password'
+                }
                 value={form[campo]}
                 onChange={handleChange}
                 required
@@ -224,13 +259,25 @@ const Register = () => {
           <div className="flex items-center space-x-4">
             <label
               htmlFor="imagen"
-              className="cursor-pointer inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-400 to-purple-400 text-white font-semibold rounded-lg shadow-md hover:from-blue-500 hover:to-purple-500 transition-all duration-300 transform hover:scale-105"
+              className={`cursor-pointer inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-400 to-purple-400 text-white font-semibold rounded-lg shadow-md hover:from-blue-500 hover:to-purple-500 transition-all duration-300 transform hover:scale-105 ${compressing ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 002.828 2.828l6.586-6.586a2 2 0 10-2.828-2.828z" />
-                <path strokeLinecap="round" strokeLinejoin="round" d="M16 7v6a2 2 0 002 2h6" />
-              </svg>
-              Seleccionar imagen
+              {compressing ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Comprimiendo...
+                </>
+              ) : (
+                <>
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 002.828 2.828l6.586-6.586a2 2 0 10-2.828-2.828z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M16 7v6a2 2 0 002 2h6" />
+                  </svg>
+                  Seleccionar imagen
+                </>
+              )}
               <input
                 id="imagen"
                 type="file"
@@ -239,12 +286,32 @@ const Register = () => {
                 onChange={handleFileChange}
                 required
                 className="hidden"
+                disabled={compressing}
               />
             </label>
             <span className="text-gray-600 text-sm truncate max-w-[180px]">
               {imagen ? imagen.name : "Ningún archivo seleccionado"}
             </span>
           </div>
+          {compressing && (
+            <div className="text-blue-600 text-sm flex items-center">
+              <svg className="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Comprimiendo imagen para optimizar el tamaño...
+            </div>
+          )}
+          {imageInfo && !compressing && (
+            <div className="text-green-600 text-sm bg-green-50 p-2 rounded-lg">
+              <div className="flex items-center">
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Imagen subida exitosamente
+              </div>
+            </div>
+          )}
           {errores.imagen && <p className="text-red-500 text-sm">{errores.imagen}</p>}
         </div>
 

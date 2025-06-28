@@ -143,9 +143,10 @@ const Login = ({ onLogin }) => {
           <input
             type="email"
             id="correo"
+            name="email"
             value={correo}
             onChange={e => setCorreo(e.target.value)}
-            autoComplete="username"
+            autoComplete="email"
             className="w-full px-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-purple-400 outline-none transition duration-200 focus:scale-[1.02]"
             placeholder="usuario@cua.uam.mx"
             disabled={loading}
@@ -158,6 +159,7 @@ const Login = ({ onLogin }) => {
             <input
               type={showPassword ? 'text' : 'password'}
               id="contrasena"
+              name="password"
               value={contrasena}
               onChange={e => setContrasena(e.target.value)}
               autoComplete="current-password"

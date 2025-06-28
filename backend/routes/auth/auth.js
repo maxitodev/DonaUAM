@@ -46,6 +46,15 @@ router.post(
       if (!req.file) {
         return res.status(400).json({ message: 'La imagen es obligatoria.' });
       }
+      
+      // Validar tamaño máximo de imagen (5MB después de compresión)
+      const maxSize = 5 * 1024 * 1024; // 5MB en bytes
+      if (req.file.size > maxSize) {
+        return res.status(400).json({ 
+          message: 'La imagen es demasiado grande. El tamaño máximo permitido es 5MB.' 
+        });
+      }
+      
       // Guarda la imagen como base64
       const imagenBase64 = req.file.buffer.toString('base64');
       const hash = await bcrypt.hash(contrasena, 10);

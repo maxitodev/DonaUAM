@@ -188,9 +188,9 @@ const Home = () => {
                   onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') navigate(`/donacion/${obj._id}`); }}
                 >
                   <div className="h-64 bg-gray-200 relative">
-                    {obj.imagen && obj.imagen.trim() !== "" ? (
+                    {obj.imagen && obj.imagen.length > 0 ? (
                       <img 
-                        src={obj.imagen} 
+                        src={Array.isArray(obj.imagen) ? obj.imagen[0] : obj.imagen} 
                         alt={obj.nombre} 
                         className="w-full h-full object-cover"
                       />
@@ -201,10 +201,10 @@ const Home = () => {
                     )}
                   </div>
                   <div className="p-6">
-                    <h3 className="text-xl font-semibold text-indigo-900 mb-2">{obj.nombre}</h3>
-                    <p className="text-gray-600 mb-4 line-clamp-3">{obj.descripcion}</p>
+                    <h3 className="text-xl font-semibold text-indigo-900 mb-2 truncate">{obj.nombre}</h3>
+                    <p className="text-gray-600 mb-4 line-clamp-2 overflow-hidden">{obj.descripcion}</p>
                     <div className="flex justify-between items-center">
-                      <span className="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm">{obj.categoria}</span>
+                      <span className="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm truncate max-w-[120px]">{obj.categoria}</span>
                       <button 
                         className="px-5 py-2 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-600 text-white rounded-full font-semibold shadow-md hover:scale-105 hover:from-pink-600 hover:to-indigo-700 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-pink-300/50 cursor-pointer"
                         onClick={e => { e.stopPropagation(); navigate(`/donacion/${obj._id}`); }}

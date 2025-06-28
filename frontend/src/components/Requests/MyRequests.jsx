@@ -142,6 +142,85 @@ const MyRequests = () => {
                         </div>
                       </div>
 
+                      {/* Notificación especial para solicitudes aprobadas */}
+                      {solicitud.estado === 'aprobada' && (
+                        <div className="bg-green-50 border border-green-200 rounded-lg p-3 md:p-4">
+                          <div className="flex items-start gap-3">
+                            <div className="flex-shrink-0">
+                              <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                                <span className="text-green-600 text-lg">🎉</span>
+                              </div>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-sm md:text-base font-semibold text-green-800 mb-2">
+                                ¡Felicidades! Tu solicitud ha sido aprobada
+                              </h4>
+                              <div className="space-y-2 text-xs md:text-sm text-green-700">
+                                <p className="leading-relaxed">
+                                  El donador ha revisado tu solicitud y ha decidido otorgarte esta donación.
+                                </p>
+                                <div className="bg-green-100 rounded-lg p-2 md:p-3">
+                                  <p className="font-medium mb-1">📞 Próximos pasos:</p>
+                                  <ul className="space-y-1 text-xs md:text-sm">
+                                    <li>• El donador se pondrá en contacto contigo pronto</li>
+                                    <li>• Mantén tu teléfono disponible: <span className="font-medium">{solicitud.telefono}</span></li>
+                                    <li>• Coordinarán juntos la fecha y lugar de entrega</li>
+                                    <li>• Asegúrate de revisar tu WhatsApp y correo electrónico</li>
+                                  </ul>
+                                </div>
+                                <p className="text-xs text-green-600 italic">
+                                  💡 Si no recibes contacto en 48 horas, puedes ver los detalles de la donación para más información.
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Mensaje para solicitudes rechazadas */}
+                      {solicitud.estado === 'rechazada' && (
+                        <div className="bg-red-50 border border-red-200 rounded-lg p-3 md:p-4">
+                          <div className="flex items-start gap-3">
+                            <div className="flex-shrink-0">
+                              <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                                <span className="text-red-600 text-lg">❌</span>
+                              </div>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-sm md:text-base font-semibold text-red-800 mb-2">
+                                Solicitud no aprobada
+                              </h4>
+                              <p className="text-xs md:text-sm text-red-700 leading-relaxed">
+                                Lamentablemente, el donador ha decidido no aprobar tu solicitud en esta ocasión. 
+                                Te animamos a seguir participando y solicitar otras donaciones que se ajusten a tus necesidades.
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Mensaje para solicitudes pendientes */}
+                      {solicitud.estado === 'pendiente' && (
+                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 md:p-4">
+                          <div className="flex items-start gap-3">
+                            <div className="flex-shrink-0">
+                              <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
+                                <span className="text-yellow-600 text-lg">⏳</span>
+                              </div>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-sm md:text-base font-semibold text-yellow-800 mb-2">
+                                Solicitud en revisión
+                              </h4>
+                              <p className="text-xs md:text-sm text-yellow-700 leading-relaxed">
+                                Tu solicitud ha sido enviada correctamente y está siendo revisada por el donador. 
+                                Recibirás una notificación cuando haya una respuesta.
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
                       {/* Botones de acción */}
                       <div className="flex flex-col xs:flex-row gap-2 sm:gap-3 pt-2 border-t border-gray-100">
                         {solicitud.donacion && (

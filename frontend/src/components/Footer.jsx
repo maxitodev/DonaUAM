@@ -9,6 +9,7 @@ export default function Footer() {
             <h3 className="text-xl font-bold mb-4 bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">
               DonaUAM
             </h3>
+            <div className="w-16 h-0.5 bg-gradient-to-r from-pink-400 to-purple-400 mb-4"></div>
             <p className="text-indigo-200 leading-relaxed">
               Plataforma de donativos de la Universidad Autónoma Metropolitana - Cuajimalpa. 
               Conectando a la comunidad universitaria a través del intercambio solidario de recursos.
@@ -16,7 +17,8 @@ export default function Footer() {
           </div>
           
           <div>
-            <h3 className="text-lg font-semibold mb-4 text-pink-300">Enlaces útiles</h3>
+            <h3 className="text-lg font-semibold mb-2 text-pink-300">Enlaces útiles</h3>
+            <div className="w-12 h-0.5 bg-gradient-to-r from-pink-300 to-pink-400 mb-4"></div>
             <ul className="space-y-2">
               <li>
                 <a 
@@ -52,7 +54,8 @@ export default function Footer() {
           </div>
           
           <div>
-            <h3 className="text-lg font-semibold mb-4 text-pink-300">Información del Proyecto</h3>
+            <h3 className="text-lg font-semibold mb-2 text-pink-300">Información del Proyecto</h3>
+            <div className="w-12 h-0.5 bg-gradient-to-r from-pink-300 to-pink-400 mb-4"></div>
             <div className="text-indigo-200 space-y-3">
               <div>
                 <p className="font-semibold text-white">Desarrollador:</p>

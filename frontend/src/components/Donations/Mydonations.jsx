@@ -125,9 +125,9 @@ const MyDonations = () => {
                       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 pb-2 border-b border-gray-100">
                         <div className="flex items-center gap-3 min-w-0">
                           <div className="w-16 h-16 rounded-xl bg-gray-200 overflow-hidden flex items-center justify-center shrink-0">
-                            {obj.imagen && obj.imagen.trim() !== "" ? (
+                            {obj.imagen && obj.imagen.length > 0 ? (
                               <img
-                                src={obj.imagen}
+                                src={Array.isArray(obj.imagen) ? obj.imagen[0] : obj.imagen}
                                 alt={obj.nombre}
                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                               />

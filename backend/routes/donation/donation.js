@@ -16,6 +16,28 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const { nombre, descripcion, categoria, imagen, usuario, estado } = req.body;
+    
+    // Validar que la imagen no exceda un tamaño máximo (5MB después de compresión)
+    if (imagen && imagen.length > 0) {
+      // Validar que no haya más de 3 imágenes
+      if (imagen.length > 3) {
+        return res.status(400).json({ 
+          error: 'No se pueden subir más de 3 imágenes.' 
+        });
+      }
+      
+      // Validar el tamaño de cada imagen
+      for (let i = 0; i < imagen.length; i++) {
+        const base64Size = Buffer.byteLength(imagen[i], 'utf8');
+        const maxSize = 5 * 1024 * 1024; // 5MB en bytes
+        if (base64Size > maxSize) {
+          return res.status(400).json({ 
+            error: `La imagen ${i + 1} es demasiado grande. El tamaño máximo permitido es 5MB.` 
+          });
+        }
+      }
+    }
+    
     const donation = new Donation({
       nombre,
       descripcion,
@@ -103,6 +125,28 @@ router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const { nombre, descripcion, categoria, imagen } = req.body;
+    
+    // Validar que la imagen no exceda un tamaño máximo (5MB después de compresión)
+    if (imagen && imagen.length > 0) {
+      // Validar que no haya más de 3 imágenes
+      if (imagen.length > 3) {
+        return res.status(400).json({ 
+          error: 'No se pueden subir más de 3 imágenes.' 
+        });
+      }
+      
+      // Validar el tamaño de cada imagen
+      for (let i = 0; i < imagen.length; i++) {
+        const base64Size = Buffer.byteLength(imagen[i], 'utf8');
+        const maxSize = 5 * 1024 * 1024; // 5MB en bytes
+        if (base64Size > maxSize) {
+          return res.status(400).json({ 
+            error: `La imagen ${i + 1} es demasiado grande. El tamaño máximo permitido es 5MB.` 
+          });
+        }
+      }
+    }
+    
     const updated = await Donation.findByIdAndUpdate(
       id,
       { nombre, descripcion, categoria, imagen },

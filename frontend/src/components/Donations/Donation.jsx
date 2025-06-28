@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../Navbar/Navbar";
 import Footer from "../Footer";
+import imageCompression from 'browser-image-compression';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -41,7 +42,7 @@ const Donation = () => {
     nombre: "",
     descripcion: "",
     categoria: "",
-    imagen: "",
+    imagen: [],
     usuario: userId
   });
   const [loading, setLoading] = useState(false);
@@ -50,6 +51,7 @@ const Donation = () => {
   const [aiLoading, setAiLoading] = useState(false);
   const [improvedDescription, setImprovedDescription] = useState("");
   const [originalDescription, setOriginalDescription] = useState("");
+  const [compressing, setCompressing] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -57,14 +59,39 @@ const Donation = () => {
   };
 
   // Manejar carga de imagen y convertir a base64
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setForm((prev) => ({ ...prev, imagen: reader.result }));
-    };
-    reader.readAsDataURL(file);
+  const handleImageChange = async (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+    
+    // Validar límite de 3 imágenes
+    if (form.imagen.length + files.length > 3) {
+      setMensaje("No puedes subir más de 3 imágenes en total.");
+      return;
+    }
+    
+    setCompressing(true);
+    setMensaje("");
+    
+    try {
+      for (const file of files) {
+        const compressedFile = await imageCompression(file, {
+          maxSizeMB: 1,
+          maxWidthOrHeight: 1024,
+          useWebWorker: true
+        });
+        
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setForm((prev) => ({ ...prev, imagen: [...prev.imagen, reader.result] }));
+        };
+        reader.readAsDataURL(compressedFile);
+      }
+      setCompressing(false);
+    } catch (error) {
+      console.error('Error al comprimir la imagen:', error);
+      setMensaje("Error al comprimir la imagen. Intenta nuevamente.");
+      setCompressing(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -76,7 +103,7 @@ const Donation = () => {
       !form.nombre.trim() ||
       !form.descripcion.trim() ||
       !form.categoria.trim() ||
-      !form.imagen ||
+      form.imagen.length === 0 ||
       !form.usuario
     ) {
       setMensaje("Todos los campos son obligatorios.");
@@ -153,6 +180,13 @@ const Donation = () => {
 
   const handleRejectAiDescription = () => {
     setAiModal(false);
+  };
+
+  const removeImage = (index) => {
+    setForm(prev => ({
+      ...prev,
+      imagen: prev.imagen.filter((_, i) => i !== index)
+    }));
   };
 
   return (
@@ -239,32 +273,74 @@ const Donation = () => {
               </select>
             </div>
             <div>
-              <label className="block text-indigo-900 font-semibold mb-2">Imagen del artículo <span className="text-pink-700 font-bold">*</span></label>
+              <label className="block text-indigo-900 font-semibold mb-2">
+                Imágenes del artículo <span className="text-pink-700 font-bold">*</span>
+                <span className="text-sm text-gray-600 ml-2">(Máximo 3 imágenes)</span>
+              </label>
               <div className="flex items-center space-x-4">
                 <label
                   htmlFor="imagen"
-                  className="px-6 py-3 bg-gradient-to-r from-pink-500 to-indigo-500 text-white rounded-xl shadow-md cursor-pointer hover:scale-110 hover:shadow-xl hover:from-pink-600 hover:to-indigo-600 active:scale-95 transition-all duration-300 font-semibold transform hover:-translate-y-1"
+                  className={`px-6 py-3 bg-gradient-to-r from-pink-500 to-indigo-500 text-white rounded-xl shadow-md cursor-pointer hover:scale-110 hover:shadow-xl hover:from-pink-600 hover:to-indigo-600 active:scale-95 transition-all duration-300 font-semibold transform hover:-translate-y-1 ${compressing ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
-                  Seleccionar archivo
+                  {compressing ? (
+                    <>
+                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Comprimiendo...
+                    </>
+                  ) : (
+                    "Seleccionar imágenes"
+                  )}
                   <input
                     id="imagen"
                     type="file"
                     accept="image/*"
+                    multiple
                     onChange={handleImageChange}
                     className="hidden cursor-pointer"
                     required
+                    disabled={compressing}
                   />
                 </label>
-                {form.imagen && (
-                  <span className="text-green-700 font-medium">¡Imagen cargada!</span>
+                {form.imagen.length > 0 && !compressing && (
+                  <span className="text-green-700 font-medium">
+                    {form.imagen.length} imagen{form.imagen.length !== 1 ? 'es' : ''} subida{form.imagen.length !== 1 ? 's' : ''} exitosamente
+                  </span>
                 )}
               </div>
-              {form.imagen && (
-                <img
-                  src={form.imagen}
-                  alt="Vista previa"
-                  className="mt-4 rounded-xl max-h-40 mx-auto"
-                />
+              {compressing && (
+                <div className="text-blue-600 text-sm flex items-center mt-2">
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Comprimiendo imagen{form.imagen.length > 1 ? 'es' : ''} para optimizar el tamaño...
+                </div>
+              )}
+              {form.imagen.length > 0 && (
+                <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {form.imagen.map((img, index) => (
+                    <div key={index} className="relative group">
+                      <img
+                        src={img}
+                        alt={`Vista previa ${index + 1}`}
+                        className="w-full h-32 object-cover rounded-xl"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(index)}
+                        className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-red-600"
+                        title="Eliminar imagen"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                  ))}
+                </div>
               )}
             </div>
             <button

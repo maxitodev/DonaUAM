@@ -17,8 +17,14 @@ const donationSchema = new mongoose.Schema({
     trim: true
   },
   imagen: {
-    type: String,
-    default: ''
+    type: [String],
+    default: [],
+    validate: {
+      validator: function(v) {
+        return v.length <= 3; // Máximo 3 imágenes
+      },
+      message: 'No se pueden subir más de 3 imágenes'
+    }
   },
   usuario: {
     type: mongoose.Schema.Types.ObjectId,

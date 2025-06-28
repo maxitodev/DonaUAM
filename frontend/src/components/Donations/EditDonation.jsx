@@ -3,6 +3,7 @@ import axios from "axios";
 import Navbar from "../Navbar/Navbar";
 import { useNavigate, useParams } from "react-router-dom";
 import Footer from "../Footer";
+import imageCompression from 'browser-image-compression';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -30,11 +31,11 @@ const EditDonation = () => {
     nombre: "",
     descripcion: "",
     categoria: "",
-    imagen: "",
+    imagen: [],
   });
   const [loading, setLoading] = useState(true);
   const [mensaje, setMensaje] = useState("");
-  const [imgPreview, setImgPreview] = useState("");
+  const [compressing, setCompressing] = useState(false);
   const [aiModal, setAiModal] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
   const [improvedDescription, setImprovedDescription] = useState("");
@@ -49,9 +50,8 @@ const EditDonation = () => {
           nombre: don.nombre,
           descripcion: don.descripcion,
           categoria: don.categoria,
-          imagen: don.imagen || ""
+          imagen: don.imagen || []
         });
-        setImgPreview(don.imagen || "");
         setLoading(false);
       })
       .catch(() => {
@@ -64,15 +64,39 @@ const EditDonation = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setForm((prev) => ({ ...prev, imagen: reader.result }));
-      setImgPreview(reader.result);
-    };
-    reader.readAsDataURL(file);
+  const handleImageChange = async (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+    
+    // Validar límite de 3 imágenes
+    if (form.imagen.length + files.length > 3) {
+      setMensaje("No puedes subir más de 3 imágenes en total.");
+      return;
+    }
+    
+    setCompressing(true);
+    setMensaje("");
+    
+    try {
+      for (const file of files) {
+        const compressedFile = await imageCompression(file, {
+          maxSizeMB: 1,
+          maxWidthOrHeight: 1024,
+          useWebWorker: true
+        });
+        
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setForm((prev) => ({ ...prev, imagen: [...prev.imagen, reader.result] }));
+        };
+        reader.readAsDataURL(compressedFile);
+      }
+      setCompressing(false);
+    } catch (error) {
+      console.error('Error al comprimir la imagen:', error);
+      setMensaje("Error al comprimir la imagen. Intenta nuevamente.");
+      setCompressing(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -82,7 +106,7 @@ const EditDonation = () => {
       !form.nombre.trim() ||
       !form.descripcion.trim() ||
       !form.categoria.trim() ||
-      !form.imagen
+      !form.imagen.length
     ) {
       setMensaje("Todos los campos son obligatorios.");
       return;
@@ -155,20 +179,66 @@ const EditDonation = () => {
     setAiModal(false);
   };
 
+  const removeImage = (index) => {
+    setForm(prev => ({
+      ...prev,
+      imagen: prev.imagen.filter((_, i) => i !== index)
+    }));
+  };
+
+  const replaceAllImages = async (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+    
+    // Validar límite de 3 imágenes
+    if (files.length > 3) {
+      setMensaje("No puedes subir más de 3 imágenes.");
+      return;
+    }
+    
+    setCompressing(true);
+    setMensaje("");
+    
+    try {
+      const newImages = [];
+      for (const file of files) {
+        const compressedFile = await imageCompression(file, {
+          maxSizeMB: 1,
+          maxWidthOrHeight: 1024,
+          useWebWorker: true
+        });
+        
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          newImages.push(reader.result);
+          if (newImages.length === files.length) {
+            setForm(prev => ({ ...prev, imagen: newImages }));
+            setCompressing(false);
+          }
+        };
+        reader.readAsDataURL(compressedFile);
+      }
+    } catch (error) {
+      console.error('Error al comprimir las imágenes:', error);
+      setMensaje("Error al comprimir las imágenes. Intenta nuevamente.");
+      setCompressing(false);
+    }
+  };
+
   return (
     <>
       <Navbar />
-      <section className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-900 via-purple-800 to-pink-700 py-16 px-4">
-        <div className="w-full max-w-xl bg-white/90 rounded-3xl shadow-2xl p-10">
-          <h2 className="text-4xl font-bold text-center text-indigo-900 mb-8">
+      <section className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-900 via-purple-800 to-pink-700 py-8 px-4 sm:py-16 sm:px-4">
+        <div className="w-full max-w-xl bg-white/90 rounded-2xl sm:rounded-3xl shadow-2xl p-6 sm:p-10">
+          <h2 className="text-2xl sm:text-4xl font-bold text-center text-indigo-900 mb-6 sm:mb-8">
             Editar Donación
           </h2>
           {loading ? (
-            <div className="text-center text-indigo-900 text-xl py-10">Cargando...</div>
+            <div className="text-center text-indigo-900 text-lg sm:text-xl py-8 sm:py-10">Cargando...</div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
               <div>
-                <label className="block text-indigo-900 font-semibold mb-2">Nombre del artículo</label>
+                <label className="block text-indigo-900 font-semibold mb-2 text-sm sm:text-base">Nombre del artículo</label>
                 <input
                   type="text"
                   name="nombre"
@@ -177,29 +247,29 @@ const EditDonation = () => {
                   required
                   minLength={3}
                   maxLength={40}
-                  className="w-full px-4 py-3 rounded-xl border border-indigo-200 focus:ring-2 focus:ring-pink-400 outline-none transition"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl border border-indigo-200 focus:ring-2 focus:ring-pink-400 outline-none transition text-sm sm:text-base"
                   placeholder="Ej. Calculadora Científica"
                 />
                 {form.nombre && form.nombre.trim().length > 0 && form.nombre.trim().length < 3 && (
-                  <div className="text-pink-700 text-sm mt-1">El título debe tener al menos 3 caracteres.</div>
+                  <div className="text-pink-700 text-xs sm:text-sm mt-1">El título debe tener al menos 3 caracteres.</div>
                 )}
                 {form.nombre && form.nombre.trim().length > 40 && (
-                  <div className="text-pink-700 text-sm mt-1">El título no debe exceder los 40 caracteres.</div>
+                  <div className="text-pink-700 text-xs sm:text-sm mt-1">El título no debe exceder los 40 caracteres.</div>
                 )}
                 <div className="text-right text-xs text-gray-500 mt-1">
                   {form.nombre.trim().length}/40 caracteres
                 </div>
               </div>
               <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="block text-indigo-900 font-semibold">Descripción</label>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
+                  <label className="block text-indigo-900 font-semibold text-sm sm:text-base">Descripción</label>
                   <button
                     type="button"
                     onClick={handleAiImprovement}
                     disabled={!form.descripcion.trim() || !form.categoria || !form.nombre.trim()}
-                    className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-semibold rounded-full shadow-lg hover:from-purple-600 hover:to-pink-600 hover:scale-105 active:scale-95 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center space-x-2"
+                    className="px-3 sm:px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs sm:text-sm font-semibold rounded-full shadow-lg hover:from-purple-600 hover:to-pink-600 hover:scale-105 active:scale-95 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center space-x-2 w-full sm:w-auto"
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
                     <span>Mejorar con IA</span>
@@ -213,27 +283,27 @@ const EditDonation = () => {
                   minLength={50}
                   maxLength={200}
                   rows={3}
-                  className="w-full px-4 py-3 rounded-xl border border-indigo-200 focus:ring-2 focus:ring-pink-400 outline-none transition resize-none"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl border border-indigo-200 focus:ring-2 focus:ring-pink-400 outline-none transition resize-none text-sm sm:text-base"
                   placeholder="Describe el estado, uso, detalles relevantes... (mínimo 50, máximo 200 caracteres)"
                 />
                 {form.descripcion && form.descripcion.trim().length > 0 && form.descripcion.trim().length < 50 && (
-                  <div className="text-pink-700 text-sm mt-1">La descripción debe tener al menos 50 caracteres.</div>
+                  <div className="text-pink-700 text-xs sm:text-sm mt-1">La descripción debe tener al menos 50 caracteres.</div>
                 )}
                 {form.descripcion && form.descripcion.trim().length > 200 && (
-                  <div className="text-pink-700 text-sm mt-1">La descripción no debe exceder los 200 caracteres.</div>
+                  <div className="text-pink-700 text-xs sm:text-sm mt-1">La descripción no debe exceder los 200 caracteres.</div>
                 )}
                 <div className="text-right text-xs text-gray-500 mt-1">
                   {form.descripcion.trim().length}/200 caracteres
                 </div>
               </div>
               <div>
-                <label className="block text-indigo-900 font-semibold mb-2">Categoría</label>
+                <label className="block text-indigo-900 font-semibold mb-2 text-sm sm:text-base">Categoría</label>
                 <select
                   name="categoria"
                   value={form.categoria}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 rounded-xl border border-indigo-200 focus:ring-2 focus:ring-pink-400 outline-none transition bg-white"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl border border-indigo-200 focus:ring-2 focus:ring-pink-400 outline-none transition bg-white text-sm sm:text-base"
                 >
                   <option value="">Selecciona una categoría</option>
                   {categorias.map((cat) => (
@@ -242,42 +312,131 @@ const EditDonation = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-indigo-900 font-semibold mb-2">Imagen del artículo <span className="text-pink-700 font-bold">*</span></label>
-                <div className="flex items-center space-x-4">
+                <label className="block text-indigo-900 font-semibold mb-2">
+                  Imágenes del artículo <span className="text-pink-700 font-bold">*</span>
+                  <span className="text-xs sm:text-sm text-gray-600 ml-2">(Máximo 3 imágenes)</span>
+                </label>
+                
+                {/* Imágenes existentes */}
+                {form.imagen.length > 0 && (
+                  <div className="mb-4">
+                    <h4 className="text-xs sm:text-sm font-medium text-gray-700 mb-2">Imágenes actuales:</h4>
+                    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                      {form.imagen.map((img, index) => (
+                        <div key={index} className="relative group">
+                          <img
+                            src={img}
+                            alt={`Imagen ${index + 1}`}
+                            className="w-full h-24 sm:h-32 object-cover rounded-lg sm:rounded-xl"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeImage(index)}
+                            className="absolute top-1 right-1 sm:top-2 sm:right-2 bg-red-500 text-white rounded-full w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center opacity-80 hover:opacity-100 transition-opacity duration-200 hover:bg-red-600 shadow-lg border-2 border-white"
+                            title="Eliminar imagen"
+                          >
+                            <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {/* Botones para agregar o reemplazar imágenes */}
+                <div className="flex flex-col gap-3">
+                  {/* Botón para agregar más imágenes */}
                   <label
-                    htmlFor="imagen"
-                    className="px-6 py-3 bg-gradient-to-r from-pink-500 to-indigo-500 text-white rounded-xl shadow-md cursor-pointer hover:scale-110 hover:shadow-xl hover:from-pink-600 hover:to-indigo-600 active:scale-95 transition-all duration-300 font-semibold transform hover:-translate-y-1"
+                    htmlFor="add-images"
+                    className={`w-full px-4 sm:px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl shadow-md cursor-pointer hover:scale-105 hover:shadow-xl hover:from-green-600 hover:to-green-700 active:scale-95 transition-all duration-300 font-semibold transform hover:-translate-y-1 text-center text-sm sm:text-base ${compressing ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
-                    Seleccionar archivo
+                    {compressing ? (
+                      <>
+                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 sm:h-5 sm:w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Comprimiendo...
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        Agregar más imágenes
+                      </>
+                    )}
                     <input
-                      id="imagen"
+                      id="add-images"
                       type="file"
                       accept="image/*"
+                      multiple
                       onChange={handleImageChange}
                       className="hidden"
+                      disabled={compressing}
                     />
                   </label>
-                  {imgPreview && (
-                    <span className="text-green-700 font-medium">¡Imagen cargada!</span>
-                  )}
+                  
+                  {/* Botón para reemplazar todas las imágenes */}
+                  <label
+                    htmlFor="replace-images"
+                    className={`w-full px-4 sm:px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl shadow-md cursor-pointer hover:scale-105 hover:shadow-xl hover:from-blue-600 hover:to-blue-700 active:scale-95 transition-all duration-300 font-semibold transform hover:-translate-y-1 text-center text-sm sm:text-base ${compressing ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  >
+                    {compressing ? (
+                      <>
+                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 sm:h-5 sm:w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Comprimiendo...
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        Reemplazar todas las imágenes
+                      </>
+                    )}
+                    <input
+                      id="replace-images"
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={replaceAllImages}
+                      className="hidden"
+                      disabled={compressing}
+                    />
+                  </label>
                 </div>
-                {imgPreview && (
-                  <img
-                    src={imgPreview}
-                    alt="Vista previa"
-                    className="mt-4 rounded-xl max-h-40 mx-auto"
-                  />
+                
+                {form.imagen.length > 0 && !compressing && (
+                  <div className="text-green-700 font-medium text-center mt-2">
+                    {form.imagen.length} imagen{form.imagen.length !== 1 ? 'es' : ''} cargada{form.imagen.length !== 1 ? 's' : ''}
+                  </div>
+                )}
+                
+                {compressing && (
+                  <div className="text-blue-600 text-sm flex items-center justify-center mt-2">
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Comprimiendo imagen{form.imagen.length > 1 ? 'es' : ''} para optimizar el tamaño...
+                  </div>
                 )}
               </div>
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-4 rounded-full bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-700 text-white font-bold text-xl shadow-xl hover:scale-105 hover:shadow-2xl hover:from-pink-700 hover:via-purple-700 hover:to-indigo-800 active:scale-95 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-pink-300/50 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-xl transform hover:-translate-y-1"
+                className="w-full py-3 sm:py-4 rounded-full bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-700 text-white font-bold text-lg sm:text-xl shadow-xl hover:scale-105 hover:shadow-2xl hover:from-pink-700 hover:via-purple-700 hover:to-indigo-800 active:scale-95 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-pink-300/50 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-xl transform hover:-translate-y-1"
               >
                 {loading ? "Guardando..." : "Guardar cambios"}
               </button>
               {mensaje && (
-                <div className={`text-center mt-4 font-semibold ${mensaje.startsWith("¡") ? "text-green-600" : "text-pink-700"}`}>
+                <div className={`text-center mt-4 font-semibold text-sm sm:text-base ${mensaje.startsWith("¡") ? "text-green-600" : "text-pink-700"}`}>
                   {mensaje}
                 </div>
               )}
@@ -288,11 +447,11 @@ const EditDonation = () => {
         {/* AI Modal */}
         {aiModal && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4">
-            <div className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl w-full max-w-sm sm:max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
+            <div className="bg-white rounded-xl sm:rounded-2xl lg:rounded-3xl shadow-2xl w-full max-w-sm sm:max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
               <div className="p-4 sm:p-6 lg:p-8">
                 <div className="flex items-center justify-between mb-4 sm:mb-6">
-                  <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-indigo-900 flex items-center space-x-2">
-                    <svg className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <h3 className="text-base sm:text-lg lg:text-xl xl:text-2xl font-bold text-indigo-900 flex items-center space-x-2">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
                     <span>Mejora con IA</span>
@@ -301,40 +460,40 @@ const EditDonation = () => {
                     onClick={handleRejectAiDescription}
                     className="text-gray-400 hover:text-gray-600 transition-colors p-1"
                   >
-                    <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
                   </button>
                 </div>
 
                 {aiLoading ? (
-                  <div className="text-center py-8 sm:py-12">
-                    <div className="inline-block animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-b-2 border-purple-600 mb-3 sm:mb-4"></div>
-                    <p className="text-gray-600 text-base sm:text-lg">La IA está mejorando tu descripción...</p>
-                    <p className="text-gray-500 text-sm mt-1 sm:mt-2">Esto puede tomar unos segundos</p>
+                  <div className="text-center py-6 sm:py-8 lg:py-12">
+                    <div className="inline-block animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 lg:h-12 lg:w-12 border-b-2 border-purple-600 mb-3 sm:mb-4"></div>
+                    <p className="text-gray-600 text-sm sm:text-base lg:text-lg">La IA está mejorando tu descripción...</p>
+                    <p className="text-gray-500 text-xs sm:text-sm mt-1 sm:mt-2">Esto puede tomar unos segundos</p>
                   </div>
                 ) : (
-                  <div className="space-y-4 sm:space-y-6">
+                  <div className="space-y-3 sm:space-y-4 lg:space-y-6">
                     <div className="bg-red-50 border border-red-200 rounded-lg sm:rounded-xl p-3 sm:p-4">
-                      <h4 className="font-semibold text-red-800 mb-2 flex items-center text-sm sm:text-base">
-                        <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <h4 className="font-semibold text-red-800 mb-2 flex items-center text-xs sm:text-sm lg:text-base">
+                        <svg className="w-3 h-3 sm:w-4 sm:h-5 lg:w-5 lg:h-5 mr-1 sm:mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
                         <span>Tu descripción actual:</span>
                       </h4>
-                      <div className="text-red-700 bg-white p-2 sm:p-3 rounded-lg border text-sm sm:text-base break-words max-h-24 sm:max-h-32 overflow-y-auto">
+                      <div className="text-red-700 bg-white p-2 sm:p-3 rounded-lg border text-xs sm:text-sm lg:text-base break-words max-h-20 sm:max-h-24 lg:max-h-32 overflow-y-auto">
                         {originalDescription}
                       </div>
                     </div>
 
                     <div className="bg-green-50 border border-green-200 rounded-lg sm:rounded-xl p-3 sm:p-4">
-                      <h4 className="font-semibold text-green-800 mb-2 flex items-center text-sm sm:text-base">
-                        <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <h4 className="font-semibold text-green-800 mb-2 flex items-center text-xs sm:text-sm lg:text-base">
+                        <svg className="w-3 h-3 sm:w-4 sm:h-5 lg:w-5 lg:h-5 mr-1 sm:mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                         </svg>
                         <span>Descripción mejorada por IA:</span>
                       </h4>
-                      <div className="text-green-700 bg-white p-2 sm:p-3 rounded-lg border text-sm sm:text-base break-words max-h-24 sm:max-h-32 overflow-y-auto">
+                      <div className="text-green-700 bg-white p-2 sm:p-3 rounded-lg border text-xs sm:text-sm lg:text-base break-words max-h-20 sm:max-h-24 lg:max-h-32 overflow-y-auto">
                         {improvedDescription}
                       </div>
                       <div className="text-right text-xs text-gray-500 mt-1 sm:mt-2">
@@ -345,18 +504,18 @@ const EditDonation = () => {
                     <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
                       <button
                         onClick={handleAcceptAiDescription}
-                        className="flex-1 py-2.5 sm:py-3 px-4 sm:px-6 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-lg sm:rounded-xl shadow-lg hover:from-green-600 hover:to-emerald-700 hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center space-x-2 text-sm sm:text-base"
+                        className="flex-1 py-2 sm:py-2.5 lg:py-3 px-3 sm:px-4 lg:px-6 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-lg sm:rounded-xl shadow-lg hover:from-green-600 hover:to-emerald-700 hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center space-x-2 text-xs sm:text-sm lg:text-base"
                       >
-                        <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
                         <span>Usar descripción mejorada</span>
                       </button>
                       <button
                         onClick={handleRejectAiDescription}
-                        className="flex-1 py-2.5 sm:py-3 px-4 sm:px-6 bg-gradient-to-r from-gray-500 to-gray-600 text-white font-semibold rounded-lg sm:rounded-xl shadow-lg hover:from-gray-600 hover:to-gray-700 hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center space-x-2 text-sm sm:text-base"
+                        className="flex-1 py-2 sm:py-2.5 lg:py-3 px-3 sm:px-4 lg:px-6 bg-gradient-to-r from-gray-500 to-gray-600 text-white font-semibold rounded-lg sm:rounded-xl shadow-lg hover:from-gray-600 hover:to-gray-700 hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center space-x-2 text-xs sm:text-sm lg:text-base"
                       >
-                        <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                         </svg>
                         <span>Mantener actual</span>
