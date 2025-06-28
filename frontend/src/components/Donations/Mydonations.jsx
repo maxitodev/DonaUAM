@@ -3,6 +3,7 @@ import axios from "axios";
 import Navbar from "../Navbar/Navbar";
 import { useNavigate } from "react-router-dom";
 import Footer from "../Footer";
+import useScrollToTop from "../../hooks/useScrollToTop";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -21,6 +22,9 @@ const shimmer =
   "animate-pulse bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100";
 
 const MyDonations = () => {
+  // Scroll automático al inicio cuando se carga el componente
+  useScrollToTop(true, 100);
+  
   const [donaciones, setDonaciones] = useState([]);
   const [loading, setLoading] = useState(true);
   const [confirmarId, setConfirmarId] = useState(null); // ID de donación a eliminar

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { scrollToTop } from "../../../utils/scrollUtils";
 
 const Navbar = ({ searchTerm, onSearchChange, onClearSearch }) => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -15,22 +16,13 @@ const Navbar = ({ searchTerm, onSearchChange, onClearSearch }) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Función para scroll al inicio de la página
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      left: 0,
-      behavior: 'smooth'
-    });
-  };
-
   // Función combinada para manejar navegación
   const handleNavigation = (callback) => {
     setMenuOpen(false);
     if (onClearSearch) onClearSearch();
     if (callback) callback();
     // Pequeño delay para asegurar que la navegación ocurra antes del scroll
-    setTimeout(scrollToTop, 100);
+    setTimeout(() => scrollToTop(), 100);
   };
 
   return (

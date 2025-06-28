@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../Navbar/Navbar";
 import Footer from "../Footer";
 import imageCompression from 'browser-image-compression';
+import useScrollToTop from "../../hooks/useScrollToTop";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -36,6 +37,9 @@ function getUserIdFromToken() {
 }
 
 const Donation = () => {
+  // Scroll automático al inicio cuando se carga el componente
+  useScrollToTop(true, 100);
+  
   const userId = getUserIdFromToken();
 
   const [form, setForm] = useState({

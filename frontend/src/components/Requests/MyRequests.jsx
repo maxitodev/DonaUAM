@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../Navbar/Navbar";
 import Footer from "../Footer";
+import useScrollToTop from "../../hooks/useScrollToTop";
 
 const Spinner = () => (
   <div className="flex items-center justify-center h-40">
@@ -10,6 +11,9 @@ const Spinner = () => (
 );
 
 const MyRequests = () => {
+  // Scroll automático al inicio cuando se carga el componente
+  useScrollToTop(true, 100);
+  
   const navigate = useNavigate();
   const [solicitudes, setSolicitudes] = useState([]);
   const [loading, setLoading] = useState(true);

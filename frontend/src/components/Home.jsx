@@ -4,10 +4,14 @@ import { useNavigate } from "react-router-dom";
 import SkeletonCard from "./SkeletonCard";
 import axios from "axios";
 import Footer from "./Footer";
+import useScrollToTop from "../hooks/useScrollToTop";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 const Home = () => {
+  // Scroll automático al inicio cuando se carga el componente
+  useScrollToTop(true, 100); // Scroll inmediato con un pequeño delay de 100ms
+  
   const navigate = useNavigate();
   const [objetos, setObjetos] = useState([]);
   const [loading, setLoading] = useState(true);

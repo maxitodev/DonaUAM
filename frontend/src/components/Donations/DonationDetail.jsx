@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../Navbar/Navbar";
 import Footer from "../Footer";
+import useScrollToTop from "../../hooks/useScrollToTop";
 
 const Spinner = () => (
   <div className="flex items-center justify-center h-40">
@@ -10,6 +11,9 @@ const Spinner = () => (
 );
 
 const DonationDetail = () => {
+  // Scroll automático al inicio cuando se carga el componente
+  useScrollToTop(false, 150); // Scroll suave con delay para permitir que se cargue el contenido
+  
   const { id } = useParams();
   const navigate = useNavigate();
   const [donation, setDonation] = useState(null);
