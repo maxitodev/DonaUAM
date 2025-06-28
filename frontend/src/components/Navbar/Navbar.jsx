@@ -1,8 +1,37 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
 const Navbar = ({ searchTerm, onSearchChange, onClearSearch }) => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  // Detectar cuando el usuario ha hecho scroll para mostrar el botón "scroll to top"
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.pageYOffset > 300);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Función para scroll al inicio de la página
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: 'smooth'
+    });
+  };
+
+  // Función combinada para manejar navegación
+  const handleNavigation = (callback) => {
+    setMenuOpen(false);
+    if (onClearSearch) onClearSearch();
+    if (callback) callback();
+    // Pequeño delay para asegurar que la navegación ocurra antes del scroll
+    setTimeout(scrollToTop, 100);
+  };
 
   return (
     <nav className="bg-gradient-to-r from-indigo-500 via-purple-500 to-blue-700 shadow-lg">
@@ -24,7 +53,7 @@ const Navbar = ({ searchTerm, onSearchChange, onClearSearch }) => {
           <div className="flex-1 xl:flex-none flex items-center justify-center xl:justify-start">
             <Link
               to="/home"
-              onClick={onClearSearch}
+              onClick={() => handleNavigation(onClearSearch)}
               className="text-white font-bold text-xl sm:text-2xl tracking-tight select-none hover:text-yellow-300 transition-colors duration-200"
             >
               DonaUAM
@@ -51,21 +80,21 @@ const Navbar = ({ searchTerm, onSearchChange, onClearSearch }) => {
 
           {/* Navegación completa - solo en pantallas muy grandes */}
           <div className="hidden xl:flex items-center space-x-6">
-            <Link to="/home" onClick={onClearSearch} className="text-white hover:text-yellow-300 font-medium transition-colors duration-200 whitespace-nowrap">
+            <Link to="/home" onClick={() => handleNavigation(onClearSearch)} className="text-white hover:text-yellow-300 font-medium transition-colors duration-200 whitespace-nowrap">
               Inicio
             </Link>
-            <Link to="/donar" onClick={onClearSearch} className="text-white hover:text-yellow-300 font-medium transition-colors duration-200 whitespace-nowrap">
+            <Link to="/donar" onClick={() => handleNavigation(onClearSearch)} className="text-white hover:text-yellow-300 font-medium transition-colors duration-200 whitespace-nowrap">
               Donar
             </Link>
-            <Link to="/mis-donaciones" onClick={onClearSearch} className="text-white hover:text-yellow-300 font-medium transition-colors duration-200 whitespace-nowrap">
+            <Link to="/mis-donaciones" onClick={() => handleNavigation(onClearSearch)} className="text-white hover:text-yellow-300 font-medium transition-colors duration-200 whitespace-nowrap">
               Mis Donaciones
             </Link>
-            <Link to="/mis-solicitudes" onClick={onClearSearch} className="text-white hover:text-yellow-300 font-medium transition-colors duration-200 whitespace-nowrap">
+            <Link to="/mis-solicitudes" onClick={() => handleNavigation(onClearSearch)} className="text-white hover:text-yellow-300 font-medium transition-colors duration-200 whitespace-nowrap">
               Mis Solicitudes
             </Link>
             <Link 
               to="/logout" 
-              onClick={onClearSearch} 
+              onClick={() => handleNavigation(onClearSearch)} 
               className="bg-orange-400 hover:bg-orange-500 text-black font-semibold py-2 px-4 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 whitespace-nowrap"
             >
               Salir
@@ -76,7 +105,7 @@ const Navbar = ({ searchTerm, onSearchChange, onClearSearch }) => {
           <div className="hidden lg:flex xl:hidden">
             <Link 
               to="/logout" 
-              onClick={onClearSearch} 
+              onClick={() => handleNavigation(onClearSearch)} 
               className="bg-orange-400 hover:bg-orange-500 text-black font-semibold py-2 px-3 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
             >
               Salir
@@ -87,7 +116,7 @@ const Navbar = ({ searchTerm, onSearchChange, onClearSearch }) => {
           <div className="flex lg:hidden">
             <Link 
               to="/logout" 
-              onClick={onClearSearch} 
+              onClick={() => handleNavigation(onClearSearch)} 
               className="bg-orange-400 hover:bg-orange-500 text-black font-semibold py-1.5 px-3 rounded-lg transition-all duration-200 shadow-lg text-sm"
             >
               Salir
@@ -142,7 +171,7 @@ const Navbar = ({ searchTerm, onSearchChange, onClearSearch }) => {
           <div className="flex flex-col h-full py-6 px-6 space-y-4">
             <Link
               to="/home"
-              onClick={() => { setMenuOpen(false); onClearSearch && onClearSearch(); }}
+              onClick={() => handleNavigation()}
               className="flex items-center space-x-3 text-white hover:text-yellow-300 hover:bg-white/10 font-medium text-lg transition-all duration-200 p-3 rounded-lg group"
             >
               <svg className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
@@ -153,7 +182,7 @@ const Navbar = ({ searchTerm, onSearchChange, onClearSearch }) => {
             
             <Link
               to="/donar"
-              onClick={() => { setMenuOpen(false); onClearSearch && onClearSearch(); }}
+              onClick={() => handleNavigation()}
               className="flex items-center space-x-3 text-white hover:text-yellow-300 hover:bg-white/10 font-medium text-lg transition-all duration-200 p-3 rounded-lg group"
             >
               <svg className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
@@ -164,7 +193,7 @@ const Navbar = ({ searchTerm, onSearchChange, onClearSearch }) => {
             
             <Link
               to="/mis-donaciones"
-              onClick={() => { setMenuOpen(false); onClearSearch && onClearSearch(); }}
+              onClick={() => handleNavigation()}
               className="flex items-center space-x-3 text-white hover:text-yellow-300 hover:bg-white/10 font-medium text-lg transition-all duration-200 p-3 rounded-lg group"
             >
               <svg className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
@@ -175,7 +204,7 @@ const Navbar = ({ searchTerm, onSearchChange, onClearSearch }) => {
             
             <Link
               to="/mis-solicitudes"
-              onClick={() => { setMenuOpen(false); onClearSearch && onClearSearch(); }}
+              onClick={() => handleNavigation()}
               className="flex items-center space-x-3 text-white hover:text-yellow-300 hover:bg-white/10 font-medium text-lg transition-all duration-200 p-3 rounded-lg group"
             >
               <svg className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
@@ -190,7 +219,7 @@ const Navbar = ({ searchTerm, onSearchChange, onClearSearch }) => {
             {/* Botón de salir prominente en el menú lateral */}
             <Link
               to="/logout"
-              onClick={() => { setMenuOpen(false); onClearSearch && onClearSearch(); }}
+              onClick={() => handleNavigation()}
               className="flex items-center justify-center space-x-3 bg-orange-400 hover:bg-orange-500 text-black font-semibold text-lg transition-all duration-200 p-4 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 mt-6"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
@@ -209,6 +238,19 @@ const Navbar = ({ searchTerm, onSearchChange, onClearSearch }) => {
           </div>
         </div>
       </div>
+
+      {/* Botón flotante para scroll to top */}
+      {showScrollTop && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-6 right-6 z-40 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110"
+          aria-label="Volver al inicio"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+          </svg>
+        </button>
+      )}
     </nav>
   );
 };
