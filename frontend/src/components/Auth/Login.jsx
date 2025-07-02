@@ -246,8 +246,15 @@ const Login = ({ onLogin }) => {
         >
           {loading ? 'Ingresando...' : 'Ingresar'}
         </button>
-        <div className="mt-4 text-center">
-          <a href="/register" className="text-indigo-700 hover:underline">¿No tienes cuenta? Regístrate</a>
+        <div className="mt-4 text-center space-y-3">
+          <div>
+            <a href="/forgot-password" className="text-sm text-purple-600 hover:text-purple-800 hover:underline font-medium transition-colors duration-200">
+              ¿Olvidaste tu contraseña?
+            </a>
+          </div>
+          <div>
+            <a href="/register" className="text-indigo-700 hover:underline">¿No tienes cuenta? Regístrate</a>
+          </div>
         </div>
       </form>
     </div>

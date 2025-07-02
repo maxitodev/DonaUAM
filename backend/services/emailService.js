@@ -121,6 +121,46 @@ class EmailService {
     }
   }
 
+  async enviarCorreoRecuperacionContrasena(correo, resetToken) {
+    const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+    
+    const msg = {
+      from: {
+        email: this.fromEmail,
+        name: this.fromName
+      },
+      to: correo,
+      subject: '🔐 Recuperación de contraseña - DonaUAM',
+      html: this.plantillaRecuperacionContrasena(correo, resetUrl)
+    };
+
+    try {
+      await sgMail.send(msg);
+      return { success: true };
+    } catch (error) {
+      return { success: false, error };
+    }
+  }
+
+  async enviarCorreoContrasenaRestablecida(correo, nombre) {
+    const msg = {
+      from: {
+        email: this.fromEmail,
+        name: this.fromName
+      },
+      to: correo,
+      subject: '✅ Contraseña restablecida exitosamente - DonaUAM',
+      html: this.plantillaContrasenaRestablecida(correo, nombre)
+    };
+
+    try {
+      await sgMail.send(msg);
+      return { success: true };
+    } catch (error) {
+      return { success: false, error };
+    }
+  }
+
   // Plantillas HTML
   plantillaSolicitudAprobada(solicitud, donacion, donador) {
     return `
@@ -361,8 +401,8 @@ class EmailService {
               </p>
 
               <div style="text-align: center; margin: 30px 0;">
-                <a href="${process.env.FRONTEND_URL}/home" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold; display: inline-block; transition: all 0.3s ease;">
-                  🔍 Ver Donaciones Disponibles
+                <a href="${process.env.FRONTEND_URL}/home" style="display: inline-block; background: linear-gradient(135deg, #059669, #10B981); color: white; text-decoration: none; padding: 15px 35px; border-radius: 50px; font-weight: 600; font-size: 16px; box-shadow: 0 10px 25px rgba(5, 150, 105, 0.3);">
+                  Explorar donaciones →
                 </a>
               </div>
             </div>
@@ -713,110 +753,170 @@ class EmailService {
     `;
   }
 
-  plantillaBienvenida(usuario) {
+  plantillaRecuperacionContrasena(correo, resetUrl) {
     return `
-      <!DOCTYPE html>
-      <html lang="es">
+      <html>
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>¡Bienvenido/a a DonaUAM!</title>
+        <title>Recuperación de Contraseña - DonaUAM</title>
         <style>
-          @media only screen and (max-width: 600px) {
-            .container { padding: 15px 10px !important; }
-            .content-box { padding: 25px 20px !important; }
-            .header-box { padding: 20px 15px !important; }
-            .main-title { font-size: 24px !important; }
-            .section-title { font-size: 18px !important; }
-            .text-content { font-size: 15px !important; }
-            .button-container { flex-direction: column !important; gap: 10px !important; }
-            .cta-button { width: 100% !important; margin: 0 !important; display: block !important; }
-            .feature-list { padding-left: 15px !important; }
-            .feature-item { margin-bottom: 6px !important; font-size: 14px !important; }
-            .section-padding { padding: 20px !important; }
-          }
-          .responsive-table { width: 100%; }
-          .responsive-table td { padding: 0; }
+          body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px 20px; text-align: center; border-radius: 20px 20px 0 0; }
+          .content-box { background: white; padding: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.15); margin-bottom: 20px; }
+          .button { display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 16px 32px; text-decoration: none; border-radius: 50px; font-weight: bold; text-align: center; transition: all 0.3s ease; }
+          .button:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4); }
+          .warning-box { background: linear-gradient(135deg, #fff3cd, #ffeaa7); border-left: 4px solid #e17055; padding: 20px; border-radius: 12px; margin: 20px 0; }
+          .footer { background: #2d3436; color: #b2bec3; padding: 30px; text-align: center; border-radius: 0 0 20px 20px; }
         </style>
       </head>
-      <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%;">
-        <table class="responsive-table" cellpadding="0" cellspacing="0" border="0">
-          <tr>
-            <td>
-              <div class="container" style="max-width: 650px; margin: 0 auto; padding: 30px 20px;">
-                
-                <!-- Header -->
-                <div style="text-align: center; margin-bottom: 40px;">
-                  <div class="header-box" style="background: white; border-radius: 20px; padding: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.15); margin-bottom: 20px;">
-                    <div style="display: inline-block; background: linear-gradient(135deg, #00b894, #00a085); padding: 20px; border-radius: 50%; margin-bottom: 20px;">
-                      <span style="font-size: 40px; color: white;">🎉</span>
-                    </div>
-                    <h1 class="main-title" style="color: #1F2937; margin: 0; font-size: 32px; font-weight: 700; letter-spacing: -0.5px;">¡Bienvenido/a!</h1>
-                    <p class="text-content" style="color: #6B7280; margin: 10px 0 0 0; font-size: 18px;">Tu cuenta en DonaUAM ha sido creada exitosamente</p>
-                    <div style="width: 80px; height: 5px; background: linear-gradient(90deg, #00b894, #00a085); margin: 20px auto; border-radius: 3px;"></div>
-                  </div>
-                </div>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1 style="margin: 0; font-size: 32px; font-weight: 700;">🔐 Recuperación de Contraseña</h1>
+            <p style="margin: 10px 0 0 0; font-size: 18px; opacity: 0.9;">DonaUAM - Sistema de Donaciones UAM</p>
+          </div>
+          
+          <div class="content-box">
+            <h2 style="color: #333; margin-top: 0; font-size: 24px;">Hola 👋</h2>
+            
+            <p style="color: #666; font-size: 16px; line-height: 1.6;">
+              Recibimos una solicitud para restablecer la contraseña de tu cuenta en <strong>DonaUAM</strong> 
+              asociada al correo <strong>${correo}</strong>.
+            </p>
 
-                <!-- Contenido principal -->
-                <div class="content-box" style="background: white; border-radius: 20px; padding: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.15); margin-bottom: 20px;">
-                  <h2 class="section-title" style="color: #333; margin-top: 0; font-size: 26px;">¡Hola ${usuario.nombre}! 👋</h2>
-                  
-                  <p class="text-content" style="color: #666; font-size: 16px; margin-bottom: 25px; line-height: 1.6;">
-                    ¡Gracias por unirte a <strong>DonaUAM</strong>, la plataforma de donaciones de la Universidad Autónoma Metropolitana! 
-                    Estamos emocionados de tenerte como parte de nuestra comunidad solidaria.
-                  </p>
+            <p style="color: #666; font-size: 16px; line-height: 1.6;">
+              Si solicitaste este cambio, haz clic en el botón de abajo para crear una nueva contraseña:
+            </p>
 
-                  <div class="section-padding" style="background: linear-gradient(135deg, #e8f5e8, #f0f8f0); border-left: 4px solid #00b894; padding: 25px; margin: 25px 0; border-radius: 12px;">
-                    <h3 class="section-title" style="color: #00a085; margin-top: 0; font-size: 20px; display: flex; align-items: center; flex-wrap: wrap;">
-                      <span style="margin-right: 10px; font-size: 24px;">✨</span>
-                      ¿Qué puedes hacer ahora?
-                    </h3>
-                    <ul class="feature-list" style="color: #333; margin: 15px 0; padding-left: 20px;">
-                      <li class="feature-item" style="margin-bottom: 8px;">🎁 <strong>Crear donaciones</strong> para ayudar a otros miembros de la comunidad</li>
-                      <li class="feature-item" style="margin-bottom: 8px;">📋 <strong>Solicitar donaciones</strong> que necesites</li>
-                      <li class="feature-item" style="margin-bottom: 8px;">👥 <strong>Conectar</strong> con otros estudiantes y colaboradores</li>
-                      <li class="feature-item" style="margin-bottom: 0;">💫 <strong>Ser parte</strong> de un movimiento de solidaridad universitaria</li>
-                    </ul>
-                  </div>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${resetUrl}" class="button" style="color: white; text-decoration: none;">
+                🔑 Restablecer mi contraseña
+              </a>
+            </div>
 
-                  <div style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin: 25px 0; text-align: center;">
-                    <h4 class="section-title" style="color: #333; margin-top: 0; font-size: 18px;">🚀 ¡Comienza tu experiencia!</h4>
-                    <p class="text-content" style="color: #666; margin-bottom: 20px; font-size: 16px;">Explora las donaciones disponibles o crea tu primera donación</p>
-                    
-                    <div class="button-container" style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
-                      <a href="${process.env.FRONTEND_URL}/home" class="cta-button" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 12px 25px; text-decoration: none; border-radius: 25px; font-weight: bold; display: inline-block; margin: 5px; min-width: 140px; text-align: center;">
-                        🏠 Ir al Inicio
-                      </a>
-                      <a href="${process.env.FRONTEND_URL}/donar" class="cta-button" style="background: linear-gradient(135deg, #00b894, #00a085); color: white; padding: 12px 25px; text-decoration: none; border-radius: 25px; font-weight: bold; display: inline-block; margin: 5px; min-width: 140px; text-align: center;">
-                        🎁 Crear Donación
-                      </a>
-                    </div>
-                  </div>
+            <div class="warning-box">
+              <h3 style="color: #e17055; margin-top: 0; font-size: 18px; display: flex; align-items: center;">
+                <span style="margin-right: 10px;">⚠️</span>
+                Información importante
+              </h3>
+              <ul style="color: #333; margin: 15px 0; padding-left: 20px;">
+                <li style="margin-bottom: 8px;">Este enlace es válido por <strong>1 hora</strong> únicamente</li>
+                <li style="margin-bottom: 8px;">Solo puedes usarlo <strong>una vez</strong></li>
+                <li style="margin-bottom: 8px;">Si no solicitaste este cambio, ignora este correo</li>
+                <li style="margin-bottom: 0;">Tu contraseña actual permanecerá sin cambios si no usas este enlace</li>
+              </ul>
+            </div>
 
-                  <p class="text-content" style="color: #666; font-size: 14px; text-align: center; margin-top: 30px; line-height: 1.5;">
-                    Si tienes alguna pregunta o necesitas ayuda, no dudes en contactarnos. ¡Estamos aquí para apoyarte! 💙
-                  </p>
-                </div>
+            <div style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin: 20px 0;">
+              <h4 style="color: #333; margin-top: 0; font-size: 16px;">¿Problemas con el enlace?</h4>
+              <p style="color: #666; font-size: 14px; margin: 10px 0; line-height: 1.5;">
+                Si el botón no funciona, copia y pega el siguiente enlace en tu navegador:
+              </p>
+              <p style="color: #667eea; font-size: 12px; word-break: break-all; background: #f1f3f4; padding: 10px; border-radius: 6px; margin: 10px 0;">
+                ${resetUrl}
+              </p>
+            </div>
 
-                <!-- Footer -->
-                <div style="text-align: center; color: white; padding: 20px;">
-                  <div style="background: rgba(255,255,255,0.1); border-radius: 15px; padding: 20px; backdrop-filter: blur(10px);">
-                    <p style="margin: 0 0 10px 0; font-size: 16px; font-weight: 600;">
-                      Gracias por confiar en <strong>DonaUAM</strong> 🎓
-                    </p>
-                    <p style="margin: 0; font-size: 12px; opacity: 0.9;">
-                      Este correo fue enviado por <strong>maxitodev</strong> | DonaUAM - Plataforma de Donaciones UAM
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </td>
-          </tr>
-        </table>
+            <p style="color: #666; font-size: 14px; margin-top: 30px; text-align: center;">
+              Si tienes problemas, contacta al soporte técnico de DonaUAM.
+            </p>
+          </div>
+
+          <div class="footer">
+            <p style="margin: 0; font-size: 14px;">
+              <strong>DonaUAM</strong> - Universidad Autónoma Metropolitana<br>
+              Sistema de Donaciones Universitarias
+            </p>
+            <p style="margin: 10px 0 0 0; font-size: 12px; opacity: 0.8;">
+              Este es un correo automático, no responder a esta dirección.
+            </p>
+          </div>
+        </div>
       </body>
       </html>
     `;
   }
+
+  plantillaContrasenaRestablecida(correo, nombre) {
+    return `
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Contraseña Restablecida - DonaUAM</title>
+        <style>
+          body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #00b894 0%, #00a085 100%); color: white; padding: 40px 20px; text-align: center; border-radius: 20px 20px 0 0; }
+          .content-box { background: white; padding: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.15); margin-bottom: 20px; }
+          .button { display: inline-block; background: linear-gradient(135deg, #00b894 0%, #00a085 100%); color: white; padding: 16px 32px; text-decoration: none; border-radius: 50px; font-weight: bold; text-align: center; }
+          .success-box { background: linear-gradient(135deg, #d4edda, #c3e6cb); border-left: 4px solid #00b894; padding: 20px; border-radius: 12px; margin: 20px 0; }
+          .footer { background: #2d3436; color: #b2bec3; padding: 30px; text-align: center; border-radius: 0 0 20px 20px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1 style="margin: 0; font-size: 32px; font-weight: 700;">✅ ¡Contraseña Restablecida!</h1>
+            <p style="margin: 10px 0 0 0; font-size: 18px; opacity: 0.9;">DonaUAM - Sistema de Donaciones UAM</p>
+          </div>
+          
+          <div class="content-box">
+            <h2 style="color: #333; margin-top: 0; font-size: 24px;">¡Hola ${nombre || 'Usuario'}! 👋</h2>
+            
+            <div class="success-box">
+              <h3 style="color: #00a085; margin-top: 0; font-size: 18px; display: flex; align-items: center;">
+                <span style="margin-right: 10px;">🎉</span>
+                ¡Proceso completado exitosamente!
+              </h3>
+              <p style="color: #333; margin: 10px 0;">
+                Tu contraseña ha sido restablecida correctamente para la cuenta <strong>${correo}</strong>.
+              </p>
+            </div>
+
+            <p style="color: #666; font-size: 16px; line-height: 1.6;">
+              Ya puedes iniciar sesión en DonaUAM con tu nueva contraseña. Tu cuenta está segura y lista para usar.
+            </p>
+
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${process.env.FRONTEND_URL}/login" class="button" style="color: white; text-decoration: none;">
+                🚀 Iniciar sesión ahora
+              </a>
+            </div>
+
+            <div style="background: #e3f2fd; border-left: 4px solid #2196f3; padding: 20px; border-radius: 12px; margin: 20px 0;">
+              <h4 style="color: #1976d2; margin-top: 0; font-size: 16px;">💡 Consejos de seguridad</h4>
+              <ul style="color: #333; margin: 15px 0; padding-left: 20px;">
+                <li style="margin-bottom: 8px;">Mantén tu contraseña segura y no la compartas</li>
+                <li style="margin-bottom: 8px;">Usa una contraseña única para DonaUAM</li>
+                <li style="margin-bottom: 8px;">Cierra sesión en dispositivos compartidos</li>
+                <li style="margin-bottom: 0;">Si notas actividad sospechosa, contacta soporte</li>
+              </ul>
+            </div>
+
+            <p style="color: #666; font-size: 14px; margin-top: 30px; text-align: center;">
+              Si no fuiste tú quien realizó este cambio, contacta inmediatamente al soporte técnico.
+            </p>
+          </div>
+
+          <div class="footer">
+            <p style="margin: 0; font-size: 14px;">
+              <strong>DonaUAM</strong> - Universidad Autónoma Metropolitana<br>
+              Sistema de Donaciones Universitarias
+            </p>
+            <p style="margin: 10px 0 0 0; font-size: 12px; opacity: 0.8;">
+              Este es un correo automático, no responder a esta dirección.
+            </p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+  }
+
+  // ...existing plantillas...
 }
 
 module.exports = new EmailService();

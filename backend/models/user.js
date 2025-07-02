@@ -28,6 +28,14 @@ const userSchema = new mongoose.Schema({
     imagenURL: {
         type: String, 
         required: true
+    },
+    resetPasswordToken: {
+        type: String,
+        default: null
+    },
+    resetPasswordExpire: {
+        type: Date,
+        default: null
     }
 }, {
     timestamps: true
